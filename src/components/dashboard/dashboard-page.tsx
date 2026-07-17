@@ -11,6 +11,7 @@ import {
   Sun,
   RefreshCw,
   KeyRound,
+  Beaker,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,11 +82,14 @@ export default function DashboardPage({ user }: DashboardPageProps) {
       <FadeIn direction="none">
         <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
           <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="bg-emerald-100 dark:bg-emerald-900/40 w-8 h-8 rounded-lg flex items-center justify-center">
-                <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-sm">
+                S
               </div>
-              <span className="font-bold text-lg">Spendy</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg font-bold tracking-tight">Spendy</span>
+                <span className="badge-emerald">Pocket v1.0</span>
+              </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <DateRangeFilter onFilter={handleDateFilter} isLoading={isLoading} />
@@ -119,7 +123,31 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                   : "Ringkasan keuangan bulan ini"}
               </p>
             </div>
-            <ExpenseForm />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={async () => {
+                  try {
+                    const res = await fetch("/api/seed-data", { method: "POST" });
+                    const data = await res.json();
+                    if (data.success) {
+                      toast.success(data.message);
+                      refetch();
+                    } else {
+                      toast.error(data.error || "Gagal");
+                    }
+                  } catch {
+                    toast.error("Gagal seed data");
+                  }
+                }}
+              >
+                <Beaker className="w-3.5 h-3.5" />
+                Data Contoh
+              </Button>
+              <ExpenseForm />
+            </div>
           </div>
         </FadeIn>
 

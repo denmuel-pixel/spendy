@@ -106,3 +106,54 @@
     font-family: var(--font-sans, "Inter", system-ui, sans-serif);
   }
 }
+
+@layer utilities {
+  /* Glassmorphism panel — from spendy-ai */
+  .glass-panel {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-100 dark:border-slate-800;
+  }
+
+  .glass-card {
+    @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm;
+  }
+
+  /* Bento card — spendy-ai style */
+  .bento-card {
+    @apply rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 shadow-xs;
+  }
+
+  /* Gradient text badges */
+  .badge-emerald {
+    @apply text-[9px] bg-emerald-500/10 text-emerald-500 font-bold px-2 py-0.5 rounded-full uppercase;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 10px;
+  }
+
+  /* Scan animation */
+  @keyframes scan-beam {
+    0%, 100% { top: 0; }
+    50% { top: 100%; }
+  }
+  .animate-scan {
+    animation: scan-beam 2s ease-in-out infinite;
+  }
+
+  /* Float animation */
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .animate-float-slow {
+    animation: float-slow 3s ease-in-out infinite;
+  }
+}
