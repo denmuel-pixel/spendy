@@ -69,13 +69,14 @@ export default function QuickExpense({ onSaved }: Props) {
         filledCount++;
       }
 
-      // Upload image to Supabase
-      const formData = new FormData();
-      formData.append("receipt", file);
-      fetch("/api/ocr", { method: "POST", body: formData })
-        .then((r) => r.json())
-        .then((d) => { if (d.receiptImageUrl) setReceiptImageUrl(d.receiptImageUrl); })
-        .catch(() => {});
+      // Upload image to server & get receipt URL — wait for it
+      try {
+        const formData = new FormData();
+        formData.append("receipt", file);
+        const uploadRes = await fetch("/api/ocr", { method: "POST", body: formData });
+        const uploadData = await uploadRes.json();
+        if (uploadData.receiptImageUrl) setReceiptImageUrl(uploadData.receiptImageUrl);
+      } catch {} // non-blocking: receipt URL optional
 
       if (filledCount > 0) {
         const msg = correction ? `OCR + koreksi! ${filledCount} field terisi.` : `OCR berhasil! ${filledCount} field terisi.`;
