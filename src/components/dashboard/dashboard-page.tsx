@@ -20,6 +20,7 @@ import BudgetGauge from "@/components/dashboard/budget-gauge";
 import SpendingPieChart from "@/components/charts/pie-chart";
 import SpendingLineChart from "@/components/charts/line-chart";
 import CategoryTrendChart from "@/components/dashboard/category-trend-chart";
+import QuickExpense from "@/components/dashboard/quick-expense";
 import DateRangeFilter from "@/components/dashboard/date-range-filter";
 import FadeIn from "@/components/ui/fade-in";
 import { Toaster, toast } from "sonner";
@@ -132,7 +133,12 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </div>
         </FadeIn>
 
-        {/* Filter Bar — Date + Category below header */}
+        {/* Quick Expense — main feature */}
+        <FadeIn delay={0.06}>
+          <QuickExpense onSaved={refetch} />
+        </FadeIn>
+
+        {/* Filter Bar — Date + Category */}
         <FadeIn delay={0.08}>
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -176,9 +182,13 @@ export default function DashboardPage({ user }: DashboardPageProps) {
 
 
 
-        {/* Charts Section — two equal columns */}
+        {/* Charts Section — Laporan */}
         <FadeIn delay={0.3}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Laporan Keuangan</span>
+            <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
             {/* Left: Pie Chart only */}
             <div className="bento-card p-6">
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">

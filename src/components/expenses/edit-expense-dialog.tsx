@@ -172,7 +172,11 @@ export default function EditExpenseDialog({ expense, onUpdated }: Props) {
                 <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kategori</Label>
                 <Select value={categoryId} onValueChange={(val) => val && setCategoryId(val)} required>
                   <SelectTrigger className="mt-0.5 h-9 rounded-xl text-xs">
-                    <SelectValue placeholder="Pilih" />
+                    <SelectValue placeholder="Pilih">
+                      {categoryId
+                        ? (expenseCategories.find((c) => c.id === categoryId)?.name || categoryId)
+                        : null}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {expenseCategories.map((cat) => (
