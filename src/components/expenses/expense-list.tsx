@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 import ReceiptVault from "./receipt-vault";
+import EditExpenseDialog from "./edit-expense-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -194,11 +195,12 @@ export default function ExpenseList() {
                   </div>
                 </div>
 
-                {/* Amount + Delete */}
-                <div className="flex items-center gap-1 shrink-0">
+                {/* Amount + Actions */}
+                <div className="flex items-center gap-0.5 shrink-0">
                   <span className="text-xs font-bold font-mono">
                     {formatCurrency(expense.amount)}
                   </span>
+                  <EditExpenseDialog expense={expense} onUpdated={() => fetchExpenses({ page, limit: 5 })} />
                   <Button
                     variant="ghost"
                     size="icon"

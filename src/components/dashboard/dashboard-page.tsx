@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   LogOut,
   Moon,
@@ -37,9 +37,18 @@ export default function DashboardPage({ user }: DashboardPageProps) {
   const { logout } = useAuth();
   const { data, isLoading, refetch } = useDashboard();
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string } | null>(null);
+  const [budgetLimit, setBudgetLimit] = useState(5000000);
   const [isDark, setIsDark] = useState(
     typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   );
+
+  // Fetch budget from API on mount
+  useEffect(() => {
+    fetch("/api/user/budget")
+      .then((r) => r.json())
+      .then((d) => { if (d.budget) setBudgetLimit(d.budget); })
+      .catch(() => {}); // fallback default
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = isDark ? "light" : "dark";
@@ -148,7 +157,8 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                 </h3>
                 <BudgetGauge
                   totalSpent={summary.totalThisMonth}
-                  budgetLimit={5000000}
+                  budgetLimit={budgetLimit}
+                  onBudgetChange={setBudgetLimit}
                 />
               </div>
               <div className="bento-card p-5">
@@ -156,7 +166,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                   totalThisMonth={summary.totalThisMonth || 0}
                   dailyAverage={summary.dailyAverage || 0}
                   transactionCount={summary.transactionCount || 0}
-                  budgetLimit={5000000}
+                  budgetLimit={budgetLimit}
                   topCategory={summary.topCategory || null}
                 />
               </div>
