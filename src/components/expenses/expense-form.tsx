@@ -9,6 +9,7 @@ import {
   Scan,
   X,
   ImageIcon,
+  ArrowUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,23 +31,16 @@ import {
 } from "@/components/ui/sheet";
 import { useCategories } from "@/hooks/useCategories";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useOcr } from "@/hooks/useOcr";
 import { Toaster, toast } from "sonner";
-
-interface OcrResult {
-  text: string;
-  confidence: number;
-  totalAmount?: number;
-  date?: string;
-  merchant?: string;
-}
 
 export default function ExpenseForm() {
   const router = useRouter();
   const { categories } = useCategories();
   const { createExpense } = useExpenses();
   const [open, setOpen] = useState(false);
+  const { scanReceipt, progress, isScanning } = useOcr();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
 
   // Form state
   const [amount, setAmount] = useState("");
@@ -57,7 +51,7 @@ export default function ExpenseForm() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [ocrResult, setOcrResult] = useState<OcrResult | null>(null);
+  const [ocrResult, setOcrResult] = useState<any>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const resetForm = () => {
@@ -80,44 +74,44 @@ export default function ExpenseForm() {
     setReceiptFile(file);
     setPreviewUrl(URL.createObjectURL(file));
 
-    // Auto-run OCR
-    setIsScanning(true);
     try {
+      // Run OCR client-side with progress
+      const ocrResultData = await scanReceipt(file);
+      setOcrResult(ocrResultData);
+
+      // Upload image to Supabase
       const formData = new FormData();
       formData.append("receipt", file);
 
-      const res = await fetch("/api/ocr", {
+      const uploadRes = await fetch("/api/ocr", {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json();
-      if (data.ocr) {
-        setOcrResult(data.ocr);
-        setReceiptImageUrl(data.receiptImageUrl);
-
-        if (data.ocr.totalAmount) {
-          setAmount(String(Math.round(data.ocr.totalAmount)));
-        }
-        if (data.ocr.merchant) {
-          setMerchant(data.ocr.merchant);
-        }
-        if (data.ocr.date) {
-          // Try to parse the date
-          try {
-            const parsed = new Date(data.ocr.date);
-            if (!isNaN(parsed.getTime())) {
-              setDate(parsed.toISOString().split("T")[0]);
-            }
-          } catch {}
-        }
-
-        toast.success("OCR berhasil! Data otomatis terisi.");
+      const uploadData = await uploadRes.json();
+      if (uploadData.receiptImageUrl) {
+        setReceiptImageUrl(uploadData.receiptImageUrl);
       }
+
+      // Auto-fill form from OCR
+      if (ocrResultData.totalAmount) {
+        setAmount(String(Math.round(ocrResultData.totalAmount)));
+      }
+      if (ocrResultData.merchant) {
+        setMerchant(ocrResultData.merchant);
+      }
+      if (ocrResultData.date) {
+        try {
+          const parsed = new Date(ocrResultData.date);
+          if (!isNaN(parsed.getTime())) {
+            setDate(parsed.toISOString().split("T")[0]);
+          }
+        } catch {}
+      }
+
+      toast.success("OCR berhasil! Data otomatis terisi.");
     } catch {
       toast.error("OCR gagal, silakan isi manual");
-    } finally {
-      setIsScanning(false);
     }
   };
 
@@ -182,9 +176,30 @@ export default function ExpenseForm() {
                 <label className="flex-1 cursor-pointer">
                   <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-4 text-center hover:border-emerald-400 transition-colors">
                     {isScanning ? (
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex flex-col items-center gap-2">
                         <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
-                        <span className="text-xs text-muted-foreground">Memindai...</span>
+                        <span className="text-xs text-muted-foreground">
+                          {progress?.status === "loading tesseract core" && "Menyiapkan OCR engine..."}
+                          {progress?.status === "initializing tesseract" && "Inisialisasi..."}
+                          {progress?.status === "loading language traineddata" && "Download data bahasa (~10MB)..."}
+                          {progress?.status === "initializing api" && "Memulai OCR..."}
+                          {progress?.status === "recognizing text" && "Memindai teks..."}
+                          {(progress?.status || "").includes("error") && "Memproses..."}
+                          {!progress?.status && "Memproses..."}
+                        </span>
+                        {progress && (
+                          <div className="w-full bg-muted rounded-full h-1.5">
+                            <div
+                              className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.round((progress.progress || 0) * 100)}%` }}
+                            />
+                          </div>
+                        )}
+                        {progress?.status === "loading language traineddata" && (
+                          <span className="text-[10px] text-muted-foreground">
+                            Hanya sekali, data akan di-cache
+                          </span>
+                        )}
                       </div>
                     ) : previewUrl ? (
                       <div className="relative">
