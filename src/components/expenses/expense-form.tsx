@@ -55,16 +55,16 @@ export default function ExpenseForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const resetForm = () => {
-    setAmount("");
-    setCategoryId("");
-    setMerchant("");
-    setNotes("");
-    setDate(new Date().toISOString().split("T")[0]);
-    setPaymentMethod("");
-    setReceiptImageUrl(null);
-    setReceiptFile(null);
-    setOcrResult(null);
-    setPreviewUrl(null);
+    setAmount(""); setCategoryId(""); setMerchant(""); setNotes("");
+    setDate(new Date().toISOString().split("T")[0]); setPaymentMethod("");
+    setReceiptImageUrl(null); setReceiptFile(null); setOcrResult(null); setPreviewUrl(null);
+  };
+
+  // Auto-format amount as IDR while typing
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    if (raw === "") { setAmount(""); return; }
+    setAmount(parseInt(raw).toLocaleString("id-ID"));
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,200 +171,155 @@ export default function ExpenseForm() {
             Catat Pengeluaran
           </Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="h-[90vh] sm:h-[85vh] rounded-t-2xl overflow-y-auto">
-          <SheetHeader className="mb-4">
-            <SheetTitle>Catat Pengeluaran Baru</SheetTitle>
-            <SheetDescription>
-              Upload foto struk atau isi manual
+        <SheetContent side="bottom" className="h-[90vh] sm:h-[85vh] rounded-t-2xl overflow-y-auto bg-slate-50 dark:bg-slate-950">
+          <SheetHeader className="mb-5">
+            <SheetTitle className="text-xl font-extrabold text-slate-900 dark:text-white">📸 Catat Pengeluaran</SheetTitle>
+            <SheetDescription className="text-slate-500">
+              Upload foto struk atau isi manual di bawah
             </SheetDescription>
           </SheetHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 pb-8">
-            {/* Photo Upload */}
-            <div className="space-y-2">
-              <Label>Foto Struk / Screenshot</Label>
-              <div className="flex items-center gap-3">
-                <label className="flex-1 cursor-pointer">
-                  <div className="border-2 border-dashed border-muted-foreground/30 rounded-xl p-4 text-center hover:border-emerald-400 transition-colors">
+          <form onSubmit={handleSubmit} className="pb-8 space-y-5">
+            {/* TWO-COLUMN LAYOUT */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+              
+              {/* LEFT: Photo Upload */}
+              <div className="md:col-span-5">
+                <label className="cursor-pointer block">
+                  <div className="rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-6 text-center bg-white dark:bg-slate-900 relative flex flex-col justify-center items-center h-52 hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors">
                     {isScanning ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
-                        <span className="text-xs text-muted-foreground">
-                          {progress?.status === "loading tesseract core" && "Menyiapkan OCR engine..."}
-                          {progress?.status === "initializing tesseract" && "Inisialisasi..."}
-                          {progress?.status === "loading language traineddata" && "Download data bahasa (~10MB)..."}
-                          {progress?.status === "initializing api" && "Memulai OCR..."}
-                          {progress?.status === "recognizing text" && "Memindai teks..."}
-                          {(progress?.status || "").includes("error") && "Memproses..."}
-                          {!progress?.status && "Memproses..."}
+                      <div className="flex flex-col items-center gap-2.5 w-full">
+                        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                        <span className="text-xs text-slate-500">
+                          {progress?.status === "loading language traineddata" ? "Download data OCR..." :
+                           progress?.status === "recognizing text" ? "Memindai teks..." :
+                           "Memproses..."}
                         </span>
                         {progress && (
-                          <div className="w-full bg-muted rounded-full h-1.5">
-                            <div
-                              className="bg-emerald-500 h-1.5 rounded-full transition-all duration-300"
-                              style={{ width: `${Math.round((progress.progress || 0) * 100)}%` }}
-                            />
+                          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                            <div className="bg-emerald-500 h-2 rounded-full transition-all duration-300" style={{ width: `${Math.round((progress.progress || 0) * 100)}%` }} />
                           </div>
-                        )}
-                        {progress?.status === "loading language traineddata" && (
-                          <span className="text-[10px] text-muted-foreground">
-                            Hanya sekali, data akan di-cache
-                          </span>
                         )}
                       </div>
                     ) : previewUrl ? (
-                      <div className="relative">
-                        <img
-                          src={previewUrl}
-                          alt="Receipt preview"
-                          className="max-h-24 mx-auto rounded-lg object-contain"
-                        />
-                        <span className="text-xs text-emerald-600 mt-1 block">
-                          ✓ Foto terupload
-                        </span>
+                      <div className="relative w-full">
+                        <img src={previewUrl} alt="Preview" className="max-h-40 mx-auto rounded-2xl object-contain" />
+                        <span className="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">✓</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-1">
-                        <Camera className="w-6 h-6 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          Tap untuk upload foto
-                        </span>
-                        <span className="text-[10px] text-muted-foreground/60">
-                          Otomatis baca nominal & merchant
-                        </span>
+                      <div className="flex flex-col items-center gap-2">
+                        <Camera className="w-8 h-8 text-slate-400 animate-float-slow" />
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Upload Foto Struk</span>
+                        <p className="text-[9px] text-slate-400 max-w-[140px]">Seret atau tap untuk memindai otomatis</p>
                       </div>
                     )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={handleFileChange}
-                    disabled={isScanning}
-                  />
+                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} disabled={isScanning} />
                 </label>
+                {ocrResult && (
+                  <div className="mt-2 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-2.5 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                    <Scan className="w-3 h-3" />
+                    OCR selesai (confidence: {Math.round(ocrResult.confidence)}%)
+                  </div>
+                )}
               </div>
-              {ocrResult && (
-                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2 text-xs text-emerald-700 dark:text-emerald-300">
-                  <Scan className="w-3 h-3 inline mr-1" />
-                  OCR selesai (confidence: {Math.round(ocrResult.confidence)}%)
+
+              {/* RIGHT: Manual Form */}
+              <div className="md:col-span-7 space-y-4">
+                {/* Amount with IDR format */}
+                <div>
+                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nominal (Rp)</Label>
+                  <div className="relative mt-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">Rp</span>
+                    <Input
+                      value={amount}
+                      onChange={handleAmountChange}
+                      placeholder="0"
+                      required
+                      className="pl-10 text-lg font-bold font-mono h-12 rounded-2xl"
+                    />
+                  </div>
+                  {amount && (
+                    <p className="text-[10px] text-slate-400 mt-1 ml-1">
+                      {parseInt(amount.replace(/\D/g, "") || "0").toLocaleString("id-ID")} rupiah
+                    </p>
+                  )}
                 </div>
-              )}
+
+                {/* Merchant */}
+                <div>
+                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Merchant / Toko</Label>
+                  <Input
+                    value={merchant}
+                    onChange={(e) => setMerchant(e.target.value)}
+                    placeholder="Starbucks, Indomaret, Grab..."
+                    className="mt-1 h-11 rounded-2xl"
+                  />
+                </div>
+
+                {/* Category + Date row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</Label>
+                    <Select value={categoryId} onValueChange={(val) => val && setCategoryId(val)} required>
+                      <SelectTrigger className="mt-1 h-11 rounded-2xl">
+                        <SelectValue placeholder="Pilih" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {expenseCategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            <span className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
+                              {cat.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal</Label>
+                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="mt-1 h-11 rounded-2xl" />
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div>
+                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pembayaran</Label>
+                  <Select value={paymentMethod} onValueChange={(val) => val && setPaymentMethod(val)}>
+                    <SelectTrigger className="mt-1 h-11 rounded-2xl">
+                      <SelectValue placeholder="Metode bayar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Tunai">💵 Tunai</SelectItem>
+                      <SelectItem value="QRIS">📱 QRIS</SelectItem>
+                      <SelectItem value="Kartu">💳 Kartu</SelectItem>
+                      <SelectItem value="Transfer">🏦 Transfer</SelectItem>
+                      <SelectItem value="E-Wallet">📲 E-Wallet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Catatan</Label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Opsional..."
+                    className="flex min-h-[60px] w-full rounded-2xl border border-input bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring mt-1"
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Amount */}
-            <div className="space-y-2">
-              <Label htmlFor="amount">Nominal (Rp)</Label>
-              <Input
-                id="amount"
-                type="number"
-                placeholder="50000"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                className="text-lg font-mono"
-              />
-            </div>
-
-            {/* Category */}
-            <div className="space-y-2">
-              <Label htmlFor="category">Kategori</Label>
-              <Select value={categoryId} onValueChange={(val) => val && setCategoryId(val)} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  {expenseCategories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full"
-                          style={{ backgroundColor: cat.color }}
-                        />
-                        {cat.name}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Merchant */}
-            <div className="space-y-2">
-              <Label htmlFor="merchant">Merchant / Toko</Label>
-              <Input
-                id="merchant"
-                placeholder="e.g. Starbucks, Indomaret, Grab"
-                value={merchant}
-                onChange={(e) => setMerchant(e.target.value)}
-              />
-            </div>
-
-            {/* Date */}
-            <div className="space-y-2">
-              <Label htmlFor="date">Tanggal</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Payment Method */}
-            <div className="space-y-2">
-              <Label htmlFor="payment">Metode Pembayaran</Label>
-              <Select value={paymentMethod} onValueChange={(val) => val && setPaymentMethod(val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih metode" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Tunai">💵 Tunai</SelectItem>
-                  <SelectItem value="QRIS">📱 QRIS</SelectItem>
-                  <SelectItem value="Kartu">💳 Kartu</SelectItem>
-                  <SelectItem value="Transfer">🏦 Transfer</SelectItem>
-                  <SelectItem value="E-Wallet">📲 E-Wallet</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Catatan (opsional)</Label>
-              <textarea
-                id="notes"
-                className="flex min-h-[60px] w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                placeholder="Tambahkan catatan..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </div>
-
-            {/* Submit */}
-            <div className="flex gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => { resetForm(); setOpen(false); }}
-              >
+            {/* Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button type="button" variant="outline" className="flex-1 h-12 rounded-2xl text-sm font-bold" onClick={() => { resetForm(); setOpen(false); }}>
                 Batal
               </Button>
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
-                    Menyimpan...
-                  </>
-                ) : (
-                  "Simpan"
-                )}
+              <Button type="submit" className="flex-1 h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-sm font-bold shadow-lg shadow-emerald-500/20" disabled={isSubmitting}>
+                {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Menyimpan...</> : "Simpan Pengeluaran"}
               </Button>
             </div>
           </form>
