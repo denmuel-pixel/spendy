@@ -10,6 +10,7 @@ import {
   Moon,
   Sun,
   RefreshCw,
+  KeyRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { formatCurrency } from "@/lib/currency";
 import ExpenseForm from "@/components/expenses/expense-form";
 import ExpenseList from "@/components/expenses/expense-list";
+import SetPinDialog from "@/components/dashboard/set-pin-dialog";
 import SpendingPieChart from "@/components/charts/pie-chart";
 import SpendingLineChart from "@/components/charts/line-chart";
 import DateRangeFilter from "@/components/dashboard/date-range-filter";
@@ -84,6 +86,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <DateRangeFilter onFilter={handleDateFilter} isLoading={isLoading} />
+              <SetPinDialog />
               <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => { refetch(); toast.success("Dashboard diperbarui"); }}>
                 <RefreshCw className="w-4 h-4" />
               </Button>
