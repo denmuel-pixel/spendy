@@ -101,7 +101,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </header>
       </FadeIn>
 
-      <main className="flex-1 max-w-[1250px] mx-auto px-6 py-6 w-full space-y-4" style={{
+      <main className="flex-1 max-w-[1250px] mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full space-y-4 sm:space-y-5" style={{
         background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 85% 80%, rgba(99,102,241,0.04) 0%, transparent 60%)"
       }}>
         {/* Header */}
@@ -174,9 +174,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Pengeluaran per Kategori
               </h3>
-              <div className="h-56">
+              <div className="min-h-[300px] lg:min-h-0 lg:h-56">
                 {isLoading ? (
-                  <div className="h-full flex items-center justify-center">
+                  <div className="h-[300px] lg:h-56 flex items-center justify-center">
                     <div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
                   </div>
                 ) : (
@@ -190,7 +190,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Tren Pengeluaran (30 Hari)
               </h3>
-              <div className="h-56">
+              <div className="h-[200px] lg:h-56">
                 {isLoading ? (
                   <div className="h-full flex items-center justify-center">
                     <div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
