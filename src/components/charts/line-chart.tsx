@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
@@ -23,12 +22,11 @@ export default function SpendingLineChart({ data }: Props) {
   if (data.length === 0) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
-        <p className="text-sm">Belum ada data</p>
+        <p className="text-sm">Belum ada data pengeluaran 30 hari terakhir</p>
       </div>
     );
   }
 
-  // Format date for display
   const formattedData = data.map((d) => ({
     ...d,
     displayDate: new Date(d.date).toLocaleDateString("id-ID", {
@@ -39,17 +37,22 @@ export default function SpendingLineChart({ data }: Props) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={formattedData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+      <AreaChart data={formattedData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+        <defs>
+          <linearGradient id="spendGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#10B981" stopOpacity={0.3} />
+            <stop offset="100%" stopColor="#10B981" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
         <XAxis
           dataKey="displayDate"
-          tick={{ fontSize: 10 }}
+          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
           interval="preserveStartEnd"
           tickLine={false}
           axisLine={false}
         />
         <YAxis
-          tick={{ fontSize: 10 }}
+          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
           tickFormatter={(val: number) =>
             val >= 1000000
               ? `${(val / 1000000).toFixed(1)}jt`
@@ -61,17 +64,25 @@ export default function SpendingLineChart({ data }: Props) {
           axisLine={false}
         />
         <Tooltip
+          contentStyle={{
+            borderRadius: "12px",
+            border: "1px solid hsl(var(--border))",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            backgroundColor: "hsl(var(--card))",
+          }}
           formatter={(value: any) => [`Rp ${Number(value).toLocaleString("id-ID")}`, "Pengeluaran"]}
+          labelFormatter={(label) => `📅 ${label}`}
         />
-        <Line
+        <Area
           type="monotone"
           dataKey="amount"
-          stroke="hsl(var(--primary))"
+          stroke="#10B981"
           strokeWidth={2}
-          dot={{ r: 3, fill: "hsl(var(--primary))" }}
-          activeDot={{ r: 5 }}
+          fill="url(#spendGradient)"
+          dot={{ r: 3, fill: "#10B981", stroke: "white", strokeWidth: 2 }}
+          activeDot={{ r: 5, fill: "#10B981", stroke: "white", strokeWidth: 2 }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 }

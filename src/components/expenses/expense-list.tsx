@@ -136,72 +136,77 @@ export default function ExpenseList() {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {expenses.map((expense) => (
-            <div
-              key={expense.id}
-              className="flex items-center gap-3 p-3 rounded-xl border bg-card hover:shadow-sm transition-shadow"
-            >
-              {/* Category color indicator */}
+        <div className="space-y-1.5">
+          {expenses.map((expense) => {
+            const catIcon = 
+              expense.category.icon === "utensils" ? "🍔" :
+              expense.category.icon === "car" ? "🚗" :
+              expense.category.icon === "shopping-bag" ? "🛍️" :
+              expense.category.icon === "film" ? "🎬" :
+              expense.category.icon === "heart-pulse" ? "❤️" :
+              expense.category.icon === "zap" ? "⚡" :
+              expense.category.icon === "book-open" ? "📚" :
+              expense.category.icon === "dumbbell" ? "💪" :
+              expense.category.icon === "scissors" ? "✂️" :
+              expense.category.icon === "trending-up" ? "📈" :
+              "📦";
+
+            return (
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0"
-                style={{ backgroundColor: expense.category.color }}
+                key={expense.id}
+                className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border/60 hover:shadow-sm transition-all"
               >
-                {expense.category.icon === "utensils" ? "🍽" :
-                 expense.category.icon === "car" ? "🚗" :
-                 expense.category.icon === "shopping-bag" ? "🛍" :
-                 expense.category.icon === "film" ? "🎬" :
-                 expense.category.icon === "heart-pulse" ? "❤️" :
-                 expense.category.icon === "zap" ? "⚡" :
-                 expense.category.icon === "book-open" ? "📚" :
-                 expense.category.icon === "dumbbell" ? "💪" :
-                 expense.category.icon === "scissors" ? "✂️" :
-                 expense.category.icon === "trending-up" ? "📈" :
-                 expense.category.icon === "ellipsis" ? "📌" :
-                 "💰"}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm truncate">
-                    {expense.merchant || expense.category.name}
-                  </span>
-                  {expense.receiptImageUrl && (
-                    <ReceiptVault
-                      imageUrl={expense.receiptImageUrl}
-                      merchant={expense.merchant}
-                      amount={expense.amount}
-                    />
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span>{expense.category.name}</span>
-                  <span>·</span>
-                  <span>{formatDate(expense.date)}</span>
-                </div>
-              </div>
-
-              {/* Amount */}
-              <div className="text-right shrink-0">
-                <div className="font-semibold text-sm">
-                  {formatCurrency(expense.amount)}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-0.5 shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => handleDelete(expense.id)}
+                {/* Category colored bubble */}
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base"
+                  style={{
+                    backgroundColor: `${expense.category.color}20`,
+                    color: expense.category.color,
+                  }}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
+                  {catIcon}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xs font-bold text-card-foreground truncate">
+                    {expense.merchant || expense.category.name}
+                  </h4>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[10px] text-muted-foreground">
+                      {formatDate(expense.date)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">·</span>
+                    <span className="text-[10px] text-muted-foreground truncate">
+                      {expense.category.name}
+                    </span>
+                    {expense.receiptImageUrl && (
+                      <ReceiptVault
+                        imageUrl={expense.receiptImageUrl}
+                        merchant={expense.merchant}
+                        amount={expense.amount}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Amount + Delete */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="text-xs font-bold font-mono">
+                    {formatCurrency(expense.amount)}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-7 h-7 text-muted-foreground/40 hover:text-destructive"
+                    onClick={() => handleDelete(expense.id)}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
