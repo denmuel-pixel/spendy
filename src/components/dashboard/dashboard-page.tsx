@@ -39,6 +39,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
   const { data, isLoading, refetch } = useDashboard();
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string } | null>(null);
   const [budgetLimit, setBudgetLimit] = useState(5000000);
+  const [showReport, setShowReport] = useState(false);
   const [isDark, setIsDark] = useState(
     typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   );
@@ -138,7 +139,20 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           <QuickExpense onSaved={refetch} />
         </FadeIn>
 
-        {/* Filter Bar — Date + Category */}
+        {/* Toggle Report */}
+        <FadeIn delay={0.08}>
+          <button
+            type="button"
+            onClick={() => setShowReport(!showReport)}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+          >
+            {showReport ? "▲" : "▼"} {showReport ? "Sembunyikan" : "Lihat"} Laporan Keuangan
+          </button>
+        </FadeIn>
+
+        {/* Report Section — collapsible */}
+        {showReport && (
+          <>
         <FadeIn delay={0.08}>
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -153,68 +167,43 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </div>
         </FadeIn>
 
-        {/* Budget + Insights — side by side above summary */}
+        {/* Budget + Insights */}
         {summary && summary.transactionCount > 0 && (
           <FadeIn delay={0.1}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bento-card p-5">
-                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">
-                  Ringkasan Budget
-                </h3>
-                <BudgetGauge
-                  totalSpent={summary.totalThisMonth}
-                  budgetLimit={budgetLimit}
-                  onBudgetChange={setBudgetLimit}
-                />
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">Ringkasan Budget</h3>
+                <BudgetGauge totalSpent={summary.totalThisMonth} budgetLimit={budgetLimit} onBudgetChange={setBudgetLimit} />
               </div>
               <div className="bento-card p-5">
-                <SpendingInsights
-                  totalThisMonth={summary.totalThisMonth || 0}
-                  dailyAverage={summary.dailyAverage || 0}
-                  transactionCount={summary.transactionCount || 0}
-                  budgetLimit={budgetLimit}
-                  topCategory={summary.topCategory || null}
-                />
+                <SpendingInsights totalThisMonth={summary.totalThisMonth || 0} dailyAverage={summary.dailyAverage || 0} transactionCount={summary.transactionCount || 0} budgetLimit={budgetLimit} topCategory={summary.topCategory || null} />
               </div>
             </div>
           </FadeIn>
         )}
 
-
-
-        {/* Charts Section — Laporan */}
+        {/* Charts */}
         <FadeIn delay={0.3}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Laporan Keuangan</span>
             <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800" />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
-            {/* Left: Pie Chart only */}
             <div className="bento-card p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
-                Pengeluaran per Kategori
-              </h3>
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Pengeluaran per Kategori</h3>
               <div className="min-h-[300px] lg:min-h-0 lg:h-56">
                 {isLoading ? (
-                  <div className="h-[300px] lg:h-56 flex items-center justify-center">
-                    <div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
-                  </div>
+                  <div className="h-[300px] lg:h-56 flex items-center justify-center"><div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" /></div>
                 ) : (
                   <SpendingPieChart data={pieData} />
                 )}
               </div>
             </div>
-
-            {/* Right: Area Chart */}
             <div className="bento-card p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
-                Tren Pengeluaran (30 Hari)
-              </h3>
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Tren Pengeluaran (30 Hari)</h3>
               <div className="h-[200px] lg:h-56">
                 {isLoading ? (
-                  <div className="h-full flex items-center justify-center">
-                    <div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-                  </div>
+                  <div className="h-full flex items-center justify-center"><div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" /></div>
                 ) : (
                   <SpendingLineChart data={lineData} />
                 )}
@@ -223,33 +212,31 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </div>
         </FadeIn>
 
-        {/* Category Trend — track specific category over months */}
+        {/* Category Trend */}
         <FadeIn delay={0.35}>
           <div className="bento-card p-5">
-            <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">
-              Tren per Kategori
-            </h3>
+            <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">Tren per Kategori</h3>
             <CategoryTrendChart />
           </div>
         </FadeIn>
+          </>
+        )}
 
         {/* Recent Transactions */}
+        {showReport && (
         <FadeIn delay={0.3}>
           <div className="bento-card p-6 space-y-4">
-            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">
-              Riwayat Pengeluaran
-            </h3>
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">Riwayat Pengeluaran</h3>
             {isLoading ? (
               <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
-                ))}
+                {[...Array(5)].map((_, i) => (<div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />))}
               </div>
             ) : (
               <ExpenseList />
             )}
           </div>
         </FadeIn>
+        )}
       </main>
     </>
   );
