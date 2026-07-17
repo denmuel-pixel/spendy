@@ -3,9 +3,6 @@
 import { useState, useCallback, useEffect } from "react";
 import {
   LogOut,
-  Moon,
-  Sun,
-  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -39,9 +36,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string } | null>(null);
   const [budgetLimit, setBudgetLimit] = useState(5000000);
   const [showReport, setShowReport] = useState(false);
-  const [isDark, setIsDark] = useState(
-    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-  );
 
   // Fetch budget from API on mount
   useEffect(() => {
@@ -50,13 +44,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
       .then((d) => { if (d.budget) setBudgetLimit(d.budget); })
       .catch(() => {}); // fallback default
   }, []);
-
-  const toggleTheme = () => {
-    const newTheme = isDark ? "light" : "dark";
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark", !isDark);
-    localStorage.setItem("spendy-theme", newTheme);
-  };
 
   const handleLogout = async () => {
     await logout();
@@ -97,12 +84,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <SetPinDialog />
-              <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => { refetch(); toast.success("Dashboard diperbarui"); }}>
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="w-8 h-8" onClick={toggleTheme}>
-                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
               <Button variant="ghost" size="icon" className="w-8 h-8" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" />
               </Button>
