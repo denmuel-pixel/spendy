@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Loader2, Zap } from "lucide-react";
+import { Plus, Loader2, Zap, Camera, Scan, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
 import { useExpenses } from "@/hooks/useExpenses";
+import { useOcr } from "@/hooks/useOcr";
 import { Toaster, toast } from "sonner";
 
 interface Props {
@@ -22,8 +23,12 @@ interface Props {
 export default function QuickExpense({ onSaved }: Props) {
   const { categories } = useCategories();
   const { createExpense } = useExpenses();
+  const { scanReceipt, progress, isScanning } = useOcr();
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [merchant, setMerchant] = useState("");
+  const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const expenseCategories = categories.filter((c) => c.type === "expense");
@@ -32,6 +37,43 @@ export default function QuickExpense({ onSaved }: Props) {
     const raw = e.target.value.replace(/\D/g, "");
     if (raw === "") { setAmount(""); return; }
     setAmount(parseInt(raw).toLocaleString("id-ID"));
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreviewUrl(URL.createObjectURL(file));
+
+    try {
+      const ocrResult = await scanReceipt(file);
+
+      let filledCount = 0;
+      if (ocrResult.totalAmount) {
+        setAmount(String(Math.round(ocrResult.totalAmount)));
+        filledCount++;
+      }
+      if (ocrResult.merchant) {
+        setMerchant(ocrResult.merchant);
+        filledCount++;
+      }
+
+      // Upload image to Supabase
+      const formData = new FormData();
+      formData.append("receipt", file);
+      fetch("/api/ocr", { method: "POST", body: formData })
+        .then((r) => r.json())
+        .then((d) => { if (d.receiptImageUrl) setReceiptImageUrl(d.receiptImageUrl); })
+        .catch(() => {});
+
+      if (filledCount > 0) {
+        toast.success(`OCR berhasil! ${filledCount} field terisi.`);
+      } else {
+        toast.info("OCR selesai, isi manual ya.");
+      }
+    } catch {
+      toast.error("OCR gagal, isi manual");
+    }
   };
 
   const handleSubmit = async () => {
@@ -46,11 +88,16 @@ export default function QuickExpense({ onSaved }: Props) {
       await createExpense({
         amount: parseFloat(rawAmount),
         categoryId,
+        merchant: merchant || undefined,
         date: new Date().toISOString().split("T")[0],
+        receiptImageUrl: receiptImageUrl || undefined,
       });
       toast.success("Pengeluaran dicatat! ✅");
       setAmount("");
       setCategoryId("");
+      setMerchant("");
+      setReceiptImageUrl(null);
+      setPreviewUrl(null);
       onSaved();
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Gagal";
@@ -82,7 +129,23 @@ export default function QuickExpense({ onSaved }: Props) {
             Catat Cepat
           </span>
         </div>
+
+        {/* Row 1: Photo + Amount + Category + Submit */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          {/* Photo upload — small icon button */}
+          <label className="cursor-pointer shrink-0">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center border-2 border-dashed transition-all ${previewUrl ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50"}`}>
+              {isScanning ? (
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+              ) : previewUrl ? (
+                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[9px]" />
+              ) : (
+                <Camera className="w-4 h-4 text-slate-400" />
+              )}
+            </div>
+            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} disabled={isScanning} />
+          </label>
+
           {/* Amount */}
           <div className="relative flex-1 min-w-0">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">Rp</span>
@@ -95,10 +158,10 @@ export default function QuickExpense({ onSaved }: Props) {
           </div>
 
           {/* Category */}
-          <div className="w-full sm:w-44">
+          <div className="w-full sm:w-40">
             <Select value={categoryId} onValueChange={(val) => setCategoryId(val || "")}>
               <SelectTrigger className="h-11 rounded-xl text-xs">
-                <SelectValue placeholder="Pilih kategori">
+                <SelectValue placeholder="Kategori">
                   {categoryId
                     ? expenseCategories.find((c) => c.id === categoryId)?.name || categoryId
                     : null}
@@ -121,16 +184,30 @@ export default function QuickExpense({ onSaved }: Props) {
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting || !amount || !categoryId}
-            className="h-11 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 shrink-0"
+            className="h-11 px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 shrink-0"
           >
-            {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
+            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Catat
           </Button>
         </div>
+
+        {/* Row 2: Merchant + scan progress — only when file picked or merchant filled */}
+        {(previewUrl || merchant) && (
+          <div className="flex items-center gap-2 mt-2">
+            <Input
+              value={merchant}
+              onChange={(e) => setMerchant(e.target.value)}
+              placeholder="Nama merchant/toko..."
+              className="h-9 text-sm rounded-xl flex-1"
+            />
+            {isScanning && progress && (
+              <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400">
+                <Scan className="w-3 h-3 animate-pulse" />
+                {Math.round((progress.progress || 0) * 100)}%
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
