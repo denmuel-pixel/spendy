@@ -2,15 +2,10 @@
 
 import { useState, useCallback } from "react";
 import {
-  ArrowUpRight,
-  Wallet,
-  TrendingUp,
-  Receipt,
   LogOut,
   Moon,
   Sun,
   RefreshCw,
-  KeyRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +21,7 @@ import SpendingPieChart from "@/components/charts/pie-chart";
 import SpendingLineChart from "@/components/charts/line-chart";
 import CategoryTrendChart from "@/components/dashboard/category-trend-chart";
 import DateRangeFilter from "@/components/dashboard/date-range-filter";
-import FadeIn, { StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
+import FadeIn from "@/components/ui/fade-in";
 import { Toaster, toast } from "sonner";
 
 interface DashboardPageProps {
@@ -169,74 +164,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </FadeIn>
         )}
 
-        {/* Summary Cards Row */}
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" staggerDelay={0.04}>
-          <StaggerItem>
-            <div className="bento-card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total</span>
-                <Wallet className="w-4 h-4 text-emerald-500" />
-              </div>
-              {isLoading ? (
-                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-              ) : (
-                <>
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(summary?.totalThisMonth || 0)}</div>
-                  {summary && summary.transactionCount > 0 && (
-                    <p className="text-[10px] text-slate-400 mt-1">{summary.transactionCount} transaksi</p>
-                  )}
-                </>
-              )}
-            </div>
-          </StaggerItem>
-          <StaggerItem>
-            <div className="bento-card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Rata-rata</span>
-                <TrendingUp className="w-4 h-4 text-indigo-500" />
-              </div>
-              {isLoading ? (
-                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-              ) : (
-                <div className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(summary?.dailyAverage || 0)}</div>
-              )}
-            </div>
-          </StaggerItem>
-          <StaggerItem>
-            <div className="bento-card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Transaksi</span>
-                <Receipt className="w-4 h-4 text-amber-500" />
-              </div>
-              {isLoading ? (
-                <div className="h-8 w-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-              ) : (
-                <div className="text-2xl font-bold text-slate-900 dark:text-white">{summary?.transactionCount || 0}</div>
-              )}
-            </div>
-          </StaggerItem>
-          <StaggerItem>
-            <div className="bento-card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Teratas</span>
-                <ArrowUpRight className="w-4 h-4 text-rose-500" />
-              </div>
-              {isLoading ? (
-                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-              ) : summary?.topCategory ? (
-                <>
-                  <div className="text-xl font-bold text-slate-900 dark:text-white truncate">{summary.topCategory.name}</div>
-                  <p className="text-[10px] text-slate-400 mt-1">{summary.topCategory.percentage}% dari total</p>
-                </>
-              ) : (
-                <>
-                  <div className="text-xl font-bold text-slate-300 dark:text-slate-600">—</div>
-                  <p className="text-[10px] text-slate-400 mt-1">Belum ada data</p>
-                </>
-              )}
-            </div>
-          </StaggerItem>
-        </StaggerContainer>
+
 
         {/* Charts Section — two equal columns */}
         <FadeIn delay={0.3}>

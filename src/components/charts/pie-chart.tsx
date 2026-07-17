@@ -35,14 +35,8 @@ export default function SpendingPieChart({ data }: Props) {
 
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const sorted = [...data].sort((a, b) => b.value - a.value);
-  const top5 = sorted.slice(0, 5);
-  const others = sorted.slice(5);
-  const othersTotal = others.reduce((sum, d) => sum + d.value, 0);
-  const othersPct = total > 0 ? Math.round((othersTotal / total) * 100) : 0;
-
-  const displayData = othersTotal > 0
-    ? [...top5, { name: "Lainnya", value: othersTotal, color: "#94A3B8", percentage: othersPct }]
-    : top5;
+  // Show all categories — no "Lainnya" grouping
+  const displayData = sorted;
 
   const size = 160;
   const center = size / 2;
