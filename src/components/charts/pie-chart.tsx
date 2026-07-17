@@ -44,10 +44,10 @@ export default function SpendingPieChart({ data }: Props) {
     ? [...top5, { name: "Lainnya", value: othersTotal, color: "#94A3B8", percentage: othersPct }]
     : top5;
 
-  const size = 160;
+  const size = 180;
   const center = size / 2;
-  const radius = 60;
-  const strokeWidth = 24;
+  const radius = 68;
+  const strokeWidth = 26;
   const circumference = 2 * Math.PI * radius;
 
   let offset = 0;
@@ -55,7 +55,7 @@ export default function SpendingPieChart({ data }: Props) {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-5">
       <div className="relative flex-shrink-0">
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90 drop-shadow-sm">
           {displayData.map((item) => {
             const segLen = (item.percentage / 100) * circumference;
             const dash = `${segLen} ${circumference - segLen}`;
@@ -74,24 +74,24 @@ export default function SpendingPieChart({ data }: Props) {
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Total</span>
-          <span className="text-sm font-extrabold text-slate-900 dark:text-white mt-0.5">{formatCurrency(total)}</span>
-          <span className="text-[10px] text-slate-400">{data.length} kategori</span>
+          <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Total</span>
+          <span className="text-[15px] font-extrabold text-slate-900 dark:text-white mt-0.5 leading-tight">{formatCurrency(total)}</span>
+          <span className="text-[10px] text-slate-400 font-medium">{data.length} kategori</span>
         </div>
       </div>
 
-      <div className="flex-1 space-y-1.5 min-w-0 w-full">
+      <div className="flex-1 space-y-2 min-w-0 w-full">
         {displayData.map((item) => {
           const icon = CATEGORY_ICONS[item.name] || "📦";
           return (
             <div key={item.name} className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <span className="text-sm">{icon}</span>
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
+                <span className="text-base">{icon}</span>
+                <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-bold font-mono text-slate-500 dark:text-slate-400">{formatCurrency(item.value)}</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${item.color}18`, color: item.color }}>
+                <span className="text-[13px] font-bold font-mono text-slate-600 dark:text-slate-400">{formatCurrency(item.value)}</span>
+                <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${item.color}18`, color: item.color }}>
                   {item.percentage}%
                 </span>
               </div>

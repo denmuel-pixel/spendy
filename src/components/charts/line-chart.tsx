@@ -46,13 +46,14 @@ export default function SpendingLineChart({ data }: Props) {
         </defs>
         <XAxis
           dataKey="displayDate"
-          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fontSize: 11, fill: "#64748B", fontWeight: 500 }}
           interval="preserveStartEnd"
           tickLine={false}
           axisLine={false}
+          dy={8}
         />
         <YAxis
-          tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fontSize: 11, fill: "#64748B", fontWeight: 500 }}
           tickFormatter={(val: number) =>
             val >= 1000000
               ? `${(val / 1000000).toFixed(1)}jt`
@@ -62,6 +63,7 @@ export default function SpendingLineChart({ data }: Props) {
           }
           tickLine={false}
           axisLine={false}
+          width={45}
         />
         <Tooltip
           contentStyle={{

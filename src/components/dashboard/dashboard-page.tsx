@@ -80,7 +80,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
       <Toaster position="top-center" />
       {/* Navbar */}
       <FadeIn direction="none">
-        <header className="sticky top-0 z-50 border-b border-slate-100 dark:border-slate-900 bg-white dark:bg-slate-900">
+        <header className="sticky top-0 z-50 glass-panel">
           <div className="max-w-[1250px] mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-sm">
@@ -107,7 +107,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </header>
       </FadeIn>
 
-      <main className="flex-1 max-w-[1250px] mx-auto px-6 py-8 w-full space-y-6 bg-slate-50 dark:bg-slate-950">
+      <main className="flex-1 max-w-[1250px] mx-auto px-6 py-8 w-full space-y-6 bg-slate-50 dark:bg-slate-950" style={{
+        background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 85% 80%, rgba(99,102,241,0.04) 0%, transparent 60%)"
+      }}>
         {/* Header */}
         <FadeIn delay={0.05}>
           <div className="flex items-center justify-between">
@@ -167,7 +169,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         {/* AI Insights */}
         {summary && summary.transactionCount > 0 && (
           <FadeIn delay={0.1}>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 space-y-3 shadow-xs">
+            <div className="bento-card p-5 space-y-3">
               <SpendingInsights
                 totalThisMonth={summary.totalThisMonth || 0}
                 dailyAverage={summary.dailyAverage || 0}
@@ -182,7 +184,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         {/* Summary Cards */}
         <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" staggerDelay={0.04}>
           <StaggerItem>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+            <div className="bento-card p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total</span>
                 <Wallet className="w-4 h-4 text-emerald-500" />
@@ -200,7 +202,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
           </StaggerItem>
           <StaggerItem>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+            <div className="bento-card p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Rata-rata</span>
                 <TrendingUp className="w-4 h-4 text-indigo-500" />
@@ -213,7 +215,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
           </StaggerItem>
           <StaggerItem>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+            <div className="bento-card p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Transaksi</span>
                 <Receipt className="w-4 h-4 text-amber-500" />
@@ -226,7 +228,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
           </StaggerItem>
           <StaggerItem>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+            <div className="bento-card p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Teratas</span>
                 <ArrowUpRight className="w-4 h-4 text-rose-500" />
@@ -251,7 +253,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         {/* Budget Gauge */}
         {summary && summary.transactionCount > 0 && (
           <FadeIn delay={0.25}>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs">
+            <div className="bento-card p-6">
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Ringkasan Budget
               </h3>
@@ -266,7 +268,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         {/* Charts Section */}
         <FadeIn delay={0.3}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs">
+            <div className="bento-card p-6">
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Pengeluaran per Kategori
               </h3>
@@ -280,7 +282,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                 )}
               </div>
             </div>
-            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs">
+            <div className="bento-card p-6">
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Tren Pengeluaran (30 Hari)
               </h3>
@@ -299,7 +301,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
 
         {/* Recent Transactions */}
         <FadeIn delay={0.3}>
-          <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs space-y-4">
+          <div className="bento-card p-6 space-y-4">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">
               Riwayat Pengeluaran
             </h3>
