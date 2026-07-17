@@ -24,7 +24,7 @@ export function useOcr() {
 
   const ensureWorker = useCallback(async () => {
     if (!workerRef.current) {
-      workerRef.current = Tesseract.createWorker("eng", 1, {
+      workerRef.current = Tesseract.createWorker("eng+ind", 1, {
         logger: (info) => {
           setProgress({
             status: info.status,
@@ -45,6 +45,12 @@ export function useOcr() {
       const worker = await ensureWorker();
       
       setProgress({ status: "recognizing", progress: 0 });
+      
+      // Configure for receipt text (single column, sparse text)
+      await worker.setParameters({
+        tessedit_pageseg_mode: "6", // Assume uniform block of text
+      });
+      
       const { data } = await worker.recognize(file);
       
       const text = data.text;
@@ -84,35 +90,79 @@ export function useOcr() {
 }
 
 function extractAmount(text: string): number | undefined {
-  // Find all amounts with Rp/IDR prefix or "total" label
-  const allAmounts: number[] = [];
-  
-  // Pattern 1: "Total/Rp/IDR: Rp 50.000" or "Rp50.000"
-  const pattern1 = /(?:total|jumlah|rp|idr)\s*:?\s*(?:rp\s*)?([\d.,]+)/gi;
-  let match;
-  while ((match = pattern1.exec(text)) !== null) {
-    const cleaned = match[1].replace(/\./g, "").replace(",", ".");
-    const amount = parseFloat(cleaned);
-    if (!isNaN(amount) && amount > 0) {
-      allAmounts.push(amount);
+  // Normalize text: lowercase, collapse spaces
+  const normalized = text.toLowerCase().replace(/\s+/g, " ");
+
+  // Collect all found amounts with their context (line before and after)
+  const candidates: { amount: number; line: string; priority: number }[] = [];
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+
+  // Helper: parse Indonesian number format ("50.000" = 50000, "50,50" = 50.50)
+  const parseIdr = (s: string): number | null => {
+    // If has comma then dot, the comma is decimal: "1.234,50" → 1234.50
+    if (s.includes(",") && s.includes(".")) {
+      const cleaned = s.replace(/\./g, "").replace(",", ".");
+      const val = parseFloat(cleaned);
+      return isNaN(val) ? null : val;
+    }
+    // If only commas, treat commas as decimal: "1234,50" → 1234.50
+    if (s.includes(",")) {
+      const cleaned = s.replace(",", ".");
+      const val = parseFloat(cleaned);
+      return isNaN(val) ? null : val;
+    }
+    // If only dots, treat dots as thousand separators: "1.234" → 1234
+    if (s.includes(".")) {
+      const cleaned = s.replace(/\./g, "");
+      const val = parseInt(cleaned, 10);
+      return isNaN(val) ? null : val;
+    }
+    const val = parseInt(s, 10);
+    return isNaN(val) ? null : val;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lineLower = line.toLowerCase();
+
+    // Look for "total" keywords in the current line
+    const isTotalLine = /^(sub\s*)?total|jumlah|grand\s*total|belanja|bayar|pembayaran|cash|tunai|kembali/i.test(lineLower);
+    
+    // Find all currency-like values on this line
+    const numberMatches = line.match(/(?:rp\s*)?([\d.,]+)/gi) || [];
+    
+    for (const raw of numberMatches) {
+      const cleaned = raw.replace(/^rp\s*/i, "").trim();
+      const amount = parseIdr(cleaned);
+      if (amount === null || amount <= 0) continue;
+
+      // Determine priority
+      let priority = 0; // low
+
+      // Line has "total" keyword → high priority
+      if (isTotalLine) priority = 3;
+      
+      // Has explicit Rp prefix → medium priority
+      if (/^rp\s*/i.test(raw)) priority = Math.max(priority, 2);
+
+      // Near the end of receipt (last 30% lines) → slightly higher
+      if (i > lines.length * 0.7) priority = Math.max(priority, 1);
+
+      candidates.push({ amount, line: lineLower, priority });
     }
   }
 
-  // Pattern 2: Any number with Rp prefix
-  const pattern2 = /rp\s*([\d.,]+)/gi;
-  while ((match = pattern2.exec(text)) !== null) {
-    const cleaned = match[1].replace(/\./g, "").replace(",", ".");
-    const amount = parseFloat(cleaned);
-    if (!isNaN(amount) && amount > 0) {
-      allAmounts.push(amount);
-    }
-  }
+  if (candidates.length === 0) return undefined;
 
-  // Return the largest amount found (usually the total)
-  if (allAmounts.length > 0) {
-    return Math.max(...allAmounts);
-  }
-  return undefined;
+  // Sort by priority desc, then by amount desc (prefer larger = total)
+  candidates.sort((a, b) => b.priority - a.priority || b.amount - a.amount);
+
+  // If top candidate is on a "total" line, use it
+  const top = candidates[0];
+  if (top.priority >= 2) return top.amount;
+
+  // Fallback: return the largest amount found
+  return Math.max(...candidates.map((c) => c.amount));
 }
 
 function extractDate(text: string): string | undefined {
@@ -135,29 +185,41 @@ function extractDate(text: string): string | undefined {
 }
 
 function extractMerchant(text: string): string | undefined {
-  // Filter lines that look like merchant/store names (all caps, not starting with number)
-  const lines = text.split("\n").filter((l) => {
-    const t = l.trim();
-    return (
-      t.length > 2 &&
-      t.length < 80 &&
-      !t.match(/^\d/) &&
-      !t.includes(":") &&
-      !t.includes("Rp") &&
-      !t.includes("tax") &&
-      !t.includes("total") &&
-      !t.includes("item")
-    );
-  });
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
   
-  // Return the first reasonable-looking merchant name
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.length > 3 && trimmed.length < 60) {
-      return trimmed;
+  // Candidate lines for merchant name (early in receipt, all caps or title case)
+  const candidates: string[] = [];
+  
+  for (let i = 0; i < Math.min(lines.length, 15); i++) {
+    const line = lines[i];
+    const lineLower = line.toLowerCase();
+    
+    // Skip lines that look like addresses, dates, prices, or common receipt headers
+    if (
+      line.length < 3 ||
+      line.length > 60 ||
+      /^\d/.test(line) ||
+      /^(no|telp|fax|alamat|tanggal|date|time|jam|kasir|cashier|member|npwp|invoice|receipt|order|meja|table)/i.test(lineLower) ||
+      /rp\s*[\d.,]/i.test(line) ||
+      /[\d.,]+/.test(line) && line.replace(/[\d.,\s]/g, "").length < 3
+    ) continue;
+
+    // Good candidate: all caps with reasonable length, or title case
+    if (
+      (line === line.toUpperCase() && line.length > 3) ||
+      (line[0] === line[0].toUpperCase() && line.split(" ").length >= 2)
+    ) {
+      candidates.push(line);
     }
   }
-  
-  // Fallback: first non-empty line
-  return text.split("\n").find((l) => l.trim().length > 0)?.trim() || undefined;
+
+  // Return first good merchant name
+  for (const c of candidates) {
+    // Skip if looks like generic text
+    if (/^(jalan|jl|jl\.|rt|rw|kec|kel|desa|kota|kab|prov)/i.test(c)) continue;
+    return c;
+  }
+
+  // Fallback: first reasonable non-empty line
+  return lines.find((l) => l.length > 3 && !/^\d/.test(l))?.trim() || undefined;
 }
