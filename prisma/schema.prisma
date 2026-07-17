@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ========================
+// USER
+// ========================
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  name               String?
+  avatarUrl          String?  @map("avatar_url")
+  webauthnCredential Json?    @map("webauthn_credential")
+  pinHash            String?  @map("pin_hash")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  expenses          Expense[]
+  budgets           Budget[]
+  savingsGoals      SavingsGoal[]
+  recurringExpenses RecurringExpense[]
+  wishlistItems     WishlistItem[]
+  categories        Category[]
+
+  @@map("users")
+}
+
+// ========================
+// CATEGORY
+// ========================
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String   @default("receipt")
+  color     String   @default("#10B981")
+  type      String   @default("expense")
+  isDefault Boolean  @default(false) @map("is_default")
+  userId    String?  @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user              User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses          Expense[]
+  budgets           Budget[]
+  recurringExpenses RecurringExpense[]
+
+  @@map("categories")
+}
+
+// ========================
+// EXPENSE
+// ========================
+model Expense {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  amount          Float
+  currency        String   @default("IDR")
+  categoryId      String   @map("category_id")
+  merchant        String?
+  notes           String?
+  date            DateTime
+  paymentMethod   String?  @map("payment_method")
+  receiptImageUrl String?  @map("receipt_image_url")
+  ocrRawText      String?  @map("ocr_raw_text")
+  isRecurring     Boolean  @default(false) @map("is_recurring")
+  recurringId     String?  @map("recurring_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  recurring RecurringExpense? @relation(fields: [recurringId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+  @@index([categoryId])
+  @@map("expenses")
+}
+
+// ========================
+// BUDGET
+// ========================
+model Budget {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  categoryId String   @map("category_id")
+  amount     Float
+  currency   String   @default("IDR")
+  month      Int
+  year       Int
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month, year])
+  @@map("budgets")
+}
+
+// ========================
+// SAVINGS GOAL
+// ========================
+model SavingsGoal {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  name          String
+  targetAmount  Float    @map("target_amount")
+  currentAmount Float    @default(0) @map("current_amount")
+  currency      String   @default("IDR")
+  deadline      DateTime?
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("savings_goals")
+}
+
+// ========================
+// RECURRING EXPENSE
+// ========================
+model RecurringExpense {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  name        String
+  amount      Float
+  currency    String   @default("IDR")
+  categoryId  String   @map("category_id")
+  frequency   String   @default("monthly")
+  nextDueDate DateTime @map("next_due_date")
+  isActive    Boolean  @default(true) @map("is_active")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  expenses  Expense[]
+
+  @@map("recurring_expenses")
+}
+
+// ========================
+// WISHLIST ITEM
+// ========================
+model WishlistItem {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  name       String
+  price      Float
+  currency   String   @default("IDR")
+  categoryId String?  @map("category_id")
+  priority   String   @default("medium")
+  notes      String?
+  imageUrl   String?  @map("image_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wishlist_items")
+}
