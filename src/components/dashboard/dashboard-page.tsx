@@ -11,10 +11,8 @@ import {
   Sun,
   RefreshCw,
   KeyRound,
-  Beaker,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboard } from "@/hooks/useDashboard";
 import { formatCurrency } from "@/lib/currency";
@@ -26,6 +24,7 @@ import SpendingInsights from "@/components/dashboard/spending-insights";
 import BudgetGauge from "@/components/dashboard/budget-gauge";
 import SpendingPieChart from "@/components/charts/pie-chart";
 import SpendingLineChart from "@/components/charts/line-chart";
+import CategoryTrendChart from "@/components/dashboard/category-trend-chart";
 import DateRangeFilter from "@/components/dashboard/date-range-filter";
 import FadeIn, { StaggerContainer, StaggerItem } from "@/components/ui/fade-in";
 import { Toaster, toast } from "sonner";
@@ -124,28 +123,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 text-xs rounded-2xl"
-                onClick={async () => {
-                  try {
-                    const res = await fetch("/api/seed-data", { method: "POST" });
-                    const data = await res.json();
-                    if (data.success) {
-                      toast.success(data.message);
-                      refetch();
-                    } else {
-                      toast.error(data.error || "Gagal");
-                    }
-                  } catch {
-                    toast.error("Gagal seed data");
-                  }
-                }}
-              >
-                <Beaker className="w-3.5 h-3.5" />
-                Data Contoh
-              </Button>
               <ExpenseForm />
             </div>
           </div>
@@ -295,6 +272,16 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                 )}
               </div>
             </div>
+          </div>
+        </FadeIn>
+
+        {/* Category Trend — track specific category over months */}
+        <FadeIn delay={0.35}>
+          <div className="bento-card p-5">
+            <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">
+              Tren per Kategori
+            </h3>
+            <CategoryTrendChart />
           </div>
         </FadeIn>
 

@@ -167,9 +167,8 @@ export default function ExpenseForm() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger
           render={
-            <Button className="gap-2 rounded-full shadow-lg">
+            <Button variant="outline" size="icon" className="w-9 h-9 rounded-xl">
               <Receipt className="w-4 h-4" />
-              Catat Pengeluaran
             </Button>
           }
         />

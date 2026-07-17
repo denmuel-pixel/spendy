@@ -55,7 +55,7 @@ export default function DateRangeFilter({ onFilter, isLoading }: Props) {
         <span className="text-xs">
           {new Date(startDate).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
           {" - "}
-          {new Date(endDate).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+          {new Date(endDate).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
         </span>
         <ChevronDown className="w-3 h-3" />
       </Button>
