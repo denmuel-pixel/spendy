@@ -14,6 +14,8 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useOcr } from "@/hooks/useOcr";
+import { saveOcrCorrection, lookupOcrCorrection } from "@/lib/ocr-learning";
+import SaveSuccessDialog from "@/components/dashboard/save-success-dialog";
 import { Toaster, toast } from "sonner";
 
 interface Props {
@@ -23,13 +25,16 @@ interface Props {
 export default function QuickExpense({ onSaved }: Props) {
   const { categories } = useCategories();
   const { createExpense } = useExpenses();
-  const { scanReceipt, progress, isScanning } = useOcr();
+  const { scanReceipt, progress, isScanning, rawTextRef } = useOcr();
   const [amount, setAmount] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [merchant, setMerchant] = useState("");
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [ocrRawText, setOcrRawText] = useState("");
+  const [successData, setSuccessData] = useState<{ amount: number; merchant?: string; categoryName?: string } | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const expenseCategories = categories.filter((c) => c.type === "expense");
 
@@ -47,6 +52,12 @@ export default function QuickExpense({ onSaved }: Props) {
 
     try {
       const ocrResult = await scanReceipt(file);
+      setOcrRawText(ocrResult.text);
+
+      // Check if we have learned corrections for this text
+      const correction = lookupOcrCorrection(ocrResult.text);
+      ocrResult.totalAmount = correction?.amount ?? ocrResult.totalAmount;
+      ocrResult.merchant = correction?.merchant ?? ocrResult.merchant;
 
       let filledCount = 0;
       if (ocrResult.totalAmount) {
@@ -67,7 +78,8 @@ export default function QuickExpense({ onSaved }: Props) {
         .catch(() => {});
 
       if (filledCount > 0) {
-        toast.success(`OCR berhasil! ${filledCount} field terisi.`);
+        const msg = correction ? `OCR + koreksi! ${filledCount} field terisi.` : `OCR berhasil! ${filledCount} field terisi.`;
+        toast.success(msg);
       } else {
         toast.info("OCR selesai, isi manual ya.");
       }
@@ -83,25 +95,40 @@ export default function QuickExpense({ onSaved }: Props) {
       return;
     }
 
+    const finalAmount = parseFloat(rawAmount);
+    const finalMerchant = merchant.trim() || undefined;
+    const categoryName = expenseCategories.find((c) => c.id === categoryId)?.name;
+
     setIsSubmitting(true);
     try {
       await createExpense({
-        amount: parseFloat(rawAmount),
+        amount: finalAmount,
         categoryId,
-        merchant: merchant || undefined,
+        merchant: finalMerchant,
         date: new Date().toISOString().split("T")[0],
         receiptImageUrl: receiptImageUrl || undefined,
       });
-      toast.success("Pengeluaran dicatat! ✅");
+
+      // Save OCR correction for learning
+      if (ocrRawText) {
+        saveOcrCorrection(ocrRawText, finalAmount, finalMerchant);
+      }
+
+      // Show success popup
+      setSuccessData({ amount: finalAmount, merchant: finalMerchant, categoryName });
+      setShowSuccess(true);
+
+      // Reset form
       setAmount("");
       setCategoryId("");
       setMerchant("");
       setReceiptImageUrl(null);
       setPreviewUrl(null);
+      setOcrRawText("");
       onSaved();
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Gagal";
-      toast.error(msg);
+      toast.error(`Gagal menyimpan: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -224,6 +251,11 @@ export default function QuickExpense({ onSaved }: Props) {
           </div>
         )}
       </div>
-    </>
+      {/* Success popup */}
+      <SaveSuccessDialog
+        open={showSuccess}
+        data={successData}
+        onClose={() => setShowSuccess(false)}
+      />    </>
   );
 }
