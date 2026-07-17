@@ -43,18 +43,10 @@ export default function ExpenseList() {
       filters.search = search;
     }
     fetchExpenses(filters);
-  }, [page, categoryFilter, fetchExpenses]);
+  }, [page, categoryFilter, search, fetchExpenses]);
 
   const handleSearch = () => {
     setPage(1);
-    const filters: any = { page: 1, limit: 5 };
-    if (categoryFilter && categoryFilter !== "all") {
-      filters.categoryId = categoryFilter;
-    }
-    if (search) {
-      filters.search = search;
-    }
-    fetchExpenses(filters);
   };
 
   const handleDelete = async (id: string) => {
@@ -216,8 +208,8 @@ export default function ExpenseList() {
         </div>
       )}
 
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
+      {/* Pagination — always show when there are results */}
+      {pagination.total > 0 && (
         <div className="flex items-center justify-between mt-4 pt-4 border-t">
           <span className="text-xs text-muted-foreground">
             {pagination.total} transaksi · Halaman {pagination.page} dari {pagination.totalPages}
