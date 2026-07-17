@@ -165,12 +165,14 @@ export default function ExpenseForm() {
     <>
       <Toaster position="top-center" />
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger>
-          <Button className="gap-2 rounded-full shadow-lg">
-            <Receipt className="w-4 h-4" />
-            Catat Pengeluaran
-          </Button>
-        </SheetTrigger>
+        <SheetTrigger
+          render={
+            <Button className="gap-2 rounded-full shadow-lg">
+              <Receipt className="w-4 h-4" />
+              Catat Pengeluaran
+            </Button>
+          }
+        />
         <SheetContent side="bottom" className="h-[90vh] sm:h-[85vh] rounded-t-2xl overflow-y-auto bg-slate-50 dark:bg-slate-950">
           <SheetHeader className="mb-5">
             <SheetTitle className="text-xl font-extrabold text-slate-900 dark:text-white">📸 Catat Pengeluaran</SheetTitle>

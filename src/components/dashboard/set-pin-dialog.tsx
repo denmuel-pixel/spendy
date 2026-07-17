@@ -59,12 +59,14 @@ export default function SetPinDialog() {
     <>
       <Toaster position="top-center" />
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <KeyRound className="w-3.5 h-3.5" />
-            <span className="text-xs">Set PIN</span>
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger
+          render={
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <KeyRound className="w-3.5 h-3.5" />
+              <span className="text-xs">Set PIN</span>
+            </Button>
+          }
+        />
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">

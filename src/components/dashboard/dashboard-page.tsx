@@ -107,7 +107,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </header>
       </FadeIn>
 
-      <main className="flex-1 max-w-[1250px] mx-auto px-6 py-8 w-full space-y-6 bg-slate-50 dark:bg-slate-950" style={{
+      <main className="flex-1 max-w-[1250px] mx-auto px-6 py-6 w-full space-y-4" style={{
         background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 85% 80%, rgba(99,102,241,0.04) 0%, transparent 60%)"
       }}>
         {/* Header */}
@@ -159,30 +159,15 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               <CategoryManager />
             </div>
             {summary && summary.transactionCount > 0 && (
-              <span className="text-[10px] text-slate-400 font-medium">
+              <span className="text-[11px] text-slate-400 font-medium">
                 {summary.transactionCount} transaksi · {formatCurrency(summary.totalThisMonth)}
               </span>
             )}
           </div>
         </FadeIn>
 
-        {/* AI Insights */}
-        {summary && summary.transactionCount > 0 && (
-          <FadeIn delay={0.1}>
-            <div className="bento-card p-5 space-y-3">
-              <SpendingInsights
-                totalThisMonth={summary.totalThisMonth || 0}
-                dailyAverage={summary.dailyAverage || 0}
-                transactionCount={summary.transactionCount || 0}
-                budgetLimit={5000000}
-                topCategory={summary.topCategory || null}
-              />
-            </div>
-          </FadeIn>
-        )}
-
-        {/* Summary Cards */}
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" staggerDelay={0.04}>
+        {/* Summary Cards Row */}
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" staggerDelay={0.04}>
           <StaggerItem>
             <div className="bento-card p-5">
               <div className="flex items-center justify-between mb-3">
@@ -250,29 +235,15 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </StaggerItem>
         </StaggerContainer>
 
-        {/* Budget Gauge */}
-        {summary && summary.transactionCount > 0 && (
-          <FadeIn delay={0.25}>
-            <div className="bento-card p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
-                Ringkasan Budget
-              </h3>
-              <BudgetGauge
-                totalSpent={summary.totalThisMonth}
-                budgetLimit={5000000}
-              />
-            </div>
-          </FadeIn>
-        )}
-
-        {/* Charts Section */}
+        {/* Charts Section — Pie + Insights/Budget on left, Area on right */}
         <FadeIn delay={0.3}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="bento-card p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Left: Pie Chart + Budget Gauge + Insights */}
+            <div className="bento-card p-6 space-y-5">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">
                 Pengeluaran per Kategori
               </h3>
-              <div className="h-64">
+              <div className="h-56">
                 {isLoading ? (
                   <div className="h-full flex items-center justify-center">
                     <div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
@@ -281,7 +252,32 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                   <SpendingPieChart data={pieData} />
                 )}
               </div>
+
+              {/* Budget Gauge — inline below pie */}
+              {summary && summary.transactionCount > 0 && (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <BudgetGauge
+                    totalSpent={summary.totalThisMonth}
+                    budgetLimit={5000000}
+                  />
+                </div>
+              )}
+
+              {/* Insights — inline at bottom */}
+              {summary && summary.transactionCount > 0 && (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <SpendingInsights
+                    totalThisMonth={summary.totalThisMonth || 0}
+                    dailyAverage={summary.dailyAverage || 0}
+                    transactionCount={summary.transactionCount || 0}
+                    budgetLimit={5000000}
+                    topCategory={summary.topCategory || null}
+                  />
+                </div>
+              )}
             </div>
+
+            {/* Right: Area Chart */}
             <div className="bento-card p-6">
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Tren Pengeluaran (30 Hari)
