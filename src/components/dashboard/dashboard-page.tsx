@@ -20,6 +20,9 @@ import { formatCurrency } from "@/lib/currency";
 import ExpenseForm from "@/components/expenses/expense-form";
 import ExpenseList from "@/components/expenses/expense-list";
 import SetPinDialog from "@/components/dashboard/set-pin-dialog";
+import CategoryManager from "@/components/dashboard/category-manager";
+import SpendingInsights from "@/components/dashboard/spending-insights";
+import BudgetGauge from "@/components/dashboard/budget-gauge";
 import SpendingPieChart from "@/components/charts/pie-chart";
 import SpendingLineChart from "@/components/charts/line-chart";
 import DateRangeFilter from "@/components/dashboard/date-range-filter";
@@ -86,6 +89,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <DateRangeFilter onFilter={handleDateFilter} isLoading={isLoading} />
+              <CategoryManager />
               <SetPinDialog />
               <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => { refetch(); toast.success("Dashboard diperbarui"); }}>
                 <RefreshCw className="w-4 h-4" />
@@ -118,6 +122,19 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             <ExpenseForm />
           </div>
         </FadeIn>
+
+        {/* AI Insights */}
+        <FadeIn delay={0.1}>
+          <SpendingInsights
+            totalThisMonth={summary?.totalThisMonth || 0}
+            dailyAverage={summary?.dailyAverage || 0}
+            transactionCount={summary?.transactionCount || 0}
+            budgetLimit={5000000}
+            topCategory={summary?.topCategory || null}
+          />
+        </FadeIn>
+
+        <div className="h-4" />
 
         {/* Summary Cards */}
         <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" staggerDelay={0.04}>
@@ -196,8 +213,25 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </StaggerItem>
         </StaggerContainer>
 
+        {/* Budget Gauge */}
+        {summary && summary.transactionCount > 0 && (
+          <FadeIn delay={0.25}>
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="text-base">Ringkasan Budget</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BudgetGauge
+                  totalSpent={summary.totalThisMonth}
+                  budgetLimit={5000000}
+                />
+              </CardContent>
+            </Card>
+          </FadeIn>
+        )}
+
         {/* Charts Section */}
-        <FadeIn delay={0.2}>
+        <FadeIn delay={0.3}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <Card>
               <CardHeader>
