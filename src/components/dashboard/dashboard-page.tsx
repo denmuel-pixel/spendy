@@ -80,14 +80,14 @@ export default function DashboardPage({ user }: DashboardPageProps) {
       <Toaster position="top-center" />
       {/* Navbar */}
       <FadeIn direction="none">
-        <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
-          <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        <header className="sticky top-0 z-50 border-b border-slate-100 dark:border-slate-900 bg-white dark:bg-slate-900">
+          <div className="max-w-[1250px] mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center text-white font-black text-lg shadow-sm">
                 S
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-lg font-bold tracking-tight">Spendy</span>
+                <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Spendy</span>
                 <span className="badge-emerald">Pocket v1.0</span>
               </div>
             </div>
@@ -109,15 +109,15 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </header>
       </FadeIn>
 
-      <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
+      <main className="flex-1 max-w-[1250px] mx-auto px-6 py-8 w-full space-y-6 bg-slate-50 dark:bg-slate-950">
         {/* Header */}
         <FadeIn delay={0.05}>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Halo, {user.name || user.email.split("@")[0]} 👋
               </h1>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                 {dateRange
                   ? `Ringkasan ${new Date(dateRange.startDate).toLocaleDateString("id-ID", { day: "numeric", month: "long" })} - ${new Date(dateRange.endDate).toLocaleDateString("id-ID", { day: "numeric", month: "long" })}`
                   : "Ringkasan keuangan bulan ini"}
@@ -127,7 +127,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs rounded-2xl"
                 onClick={async () => {
                   try {
                     const res = await fetch("/api/seed-data", { method: "POST" });
@@ -152,164 +152,154 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         </FadeIn>
 
         {/* AI Insights */}
-        <FadeIn delay={0.1}>
-          <SpendingInsights
-            totalThisMonth={summary?.totalThisMonth || 0}
-            dailyAverage={summary?.dailyAverage || 0}
-            transactionCount={summary?.transactionCount || 0}
-            budgetLimit={5000000}
-            topCategory={summary?.topCategory || null}
-          />
-        </FadeIn>
-
-        <div className="h-4" />
+        {summary && summary.transactionCount > 0 && (
+          <FadeIn delay={0.1}>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 space-y-3 shadow-xs">
+              <SpendingInsights
+                totalThisMonth={summary.totalThisMonth || 0}
+                dailyAverage={summary.dailyAverage || 0}
+                transactionCount={summary.transactionCount || 0}
+                budgetLimit={5000000}
+                topCategory={summary.topCategory || null}
+              />
+            </div>
+          </FadeIn>
+        )}
 
         {/* Summary Cards */}
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" staggerDelay={0.04}>
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" staggerDelay={0.04}>
           <StaggerItem>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Total</span>
                 <Wallet className="w-4 h-4 text-emerald-500" />
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="h-8 w-24 bg-muted rounded animate-pulse" />
-                ) : (
-                  <>
-                    <div className="text-2xl font-bold">{formatCurrency(summary?.totalThisMonth || 0)}</div>
-                    {summary && summary.transactionCount > 0 && (
-                      <p className="text-xs text-muted-foreground mt-1">{summary.transactionCount} transaksi</p>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+              {isLoading ? (
+                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(summary?.totalThisMonth || 0)}</div>
+                  {summary && summary.transactionCount > 0 && (
+                    <p className="text-[10px] text-slate-400 mt-1">{summary.transactionCount} transaksi</p>
+                  )}
+                </>
+              )}
+            </div>
           </StaggerItem>
           <StaggerItem>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Rata-rata Harian</CardTitle>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Rata-rata</span>
                 <TrendingUp className="w-4 h-4 text-indigo-500" />
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="h-8 w-24 bg-muted rounded animate-pulse" />
-                ) : (
-                  <div className="text-2xl font-bold">{formatCurrency(summary?.dailyAverage || 0)}</div>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+              {isLoading ? (
+                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              ) : (
+                <div className="text-2xl font-bold text-slate-900 dark:text-white">{formatCurrency(summary?.dailyAverage || 0)}</div>
+              )}
+            </div>
           </StaggerItem>
           <StaggerItem>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Transaksi</CardTitle>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Transaksi</span>
                 <Receipt className="w-4 h-4 text-amber-500" />
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="h-8 w-16 bg-muted rounded animate-pulse" />
-                ) : (
-                  <div className="text-2xl font-bold">{summary?.transactionCount || 0}</div>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+              {isLoading ? (
+                <div className="h-8 w-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              ) : (
+                <div className="text-2xl font-bold text-slate-900 dark:text-white">{summary?.transactionCount || 0}</div>
+              )}
+            </div>
           </StaggerItem>
           <StaggerItem>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Kategori Teratas</CardTitle>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Teratas</span>
                 <ArrowUpRight className="w-4 h-4 text-rose-500" />
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="h-8 w-24 bg-muted rounded animate-pulse" />
-                ) : summary?.topCategory ? (
-                  <>
-                    <div className="text-xl font-bold truncate">{summary.topCategory.name}</div>
-                    <p className="text-xs text-muted-foreground mt-1">{summary.topCategory.percentage}% dari total</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-xl font-bold truncate">—</div>
-                    <p className="text-xs text-muted-foreground mt-1">Belum ada data</p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+              {isLoading ? (
+                <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              ) : summary?.topCategory ? (
+                <>
+                  <div className="text-xl font-bold text-slate-900 dark:text-white truncate">{summary.topCategory.name}</div>
+                  <p className="text-[10px] text-slate-400 mt-1">{summary.topCategory.percentage}% dari total</p>
+                </>
+              ) : (
+                <>
+                  <div className="text-xl font-bold text-slate-300 dark:text-slate-600">—</div>
+                  <p className="text-[10px] text-slate-400 mt-1">Belum ada data</p>
+                </>
+              )}
+            </div>
           </StaggerItem>
         </StaggerContainer>
 
         {/* Budget Gauge */}
         {summary && summary.transactionCount > 0 && (
           <FadeIn delay={0.25}>
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-base">Ringkasan Budget</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BudgetGauge
-                  totalSpent={summary.totalThisMonth}
-                  budgetLimit={5000000}
-                />
-              </CardContent>
-            </Card>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
+                Ringkasan Budget
+              </h3>
+              <BudgetGauge
+                totalSpent={summary.totalThisMonth}
+                budgetLimit={5000000}
+              />
+            </div>
           </FadeIn>
         )}
 
         {/* Charts Section */}
         <FadeIn delay={0.3}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Pengeluaran per Kategori</CardTitle>
-              </CardHeader>
-              <CardContent className="h-64">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
+                Pengeluaran per Kategori
+              </h3>
+              <div className="h-64">
                 {isLoading ? (
                   <div className="h-full flex items-center justify-center">
-                    <div className="w-48 h-48 rounded-full bg-muted animate-pulse" />
+                    <div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
                   </div>
                 ) : (
                   <SpendingPieChart data={pieData} />
                 )}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Tren Pengeluaran (30 Hari)</CardTitle>
-              </CardHeader>
-              <CardContent className="h-64">
+              </div>
+            </div>
+            <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
+                Tren Pengeluaran (30 Hari)
+              </h3>
+              <div className="h-64">
                 {isLoading ? (
                   <div className="h-full flex items-center justify-center">
-                    <div className="w-full h-48 bg-muted rounded animate-pulse" />
+                    <div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
                   </div>
                 ) : (
                   <SpendingLineChart data={lineData} />
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </FadeIn>
 
         {/* Recent Transactions */}
         <FadeIn delay={0.3}>
-          <Card>
-            <CardHeader className="flex items-center justify-between">
-              <CardTitle className="text-base">Riwayat Pengeluaran</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
-                  ))}
-                </div>
-              ) : (
-                <ExpenseList />
-              )}
-            </CardContent>
-          </Card>
+          <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-900 p-6 shadow-xs space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">
+              Riwayat Pengeluaran
+            </h3>
+            {isLoading ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <ExpenseList />
+            )}
+          </div>
         </FadeIn>
       </main>
     </>
