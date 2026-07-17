@@ -69,7 +69,11 @@ export default function CategoryTrendChart() {
         <div className="flex items-center gap-2">
           <Select value={selectedCategory} onValueChange={(val) => setSelectedCategory(val || "")}>
             <SelectTrigger className="w-44">
-              <SelectValue placeholder="Pilih kategori..." />
+              <SelectValue placeholder="Pilih kategori...">
+                {selectedCategory
+                  ? (expenseCategories.find((c) => c.id === selectedCategory)?.name || selectedCategory)
+                  : null}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {expenseCategories.map((cat) => (

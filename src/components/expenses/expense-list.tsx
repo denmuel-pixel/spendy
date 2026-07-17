@@ -96,7 +96,11 @@ export default function ExpenseList() {
         <Select value={categoryFilter} onValueChange={(val) => val && setCategoryFilter(val)}>
           <SelectTrigger className="w-full sm:w-40">
             <Filter className="w-3.5 h-3.5 mr-1" />
-            <SelectValue placeholder="Semua" />
+            <SelectValue placeholder="Semua">
+              {categoryFilter === "all"
+                ? "Semua"
+                : categories.find((c) => c.id === categoryFilter)?.name || categoryFilter}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Semua Kategori</SelectItem>
