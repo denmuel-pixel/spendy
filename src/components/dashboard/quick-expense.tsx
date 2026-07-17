@@ -132,9 +132,9 @@ export default function QuickExpense({ onSaved }: Props) {
 
         {/* Row 1: Big Photo + Fields */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          {/* Photo upload — extra large with animation */}
+          {/* Photo upload — even larger with clear instruction */}
           <label className="cursor-pointer shrink-0 flex flex-col items-center gap-1.5">
-            <div className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 ${
+            <div className={`w-28 h-28 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 ${
               previewUrl
                 ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
                 : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50 animate-pulse-glow"
@@ -144,14 +144,14 @@ export default function QuickExpense({ onSaved }: Props) {
               ) : previewUrl ? (
                 <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[15px]" />
               ) : (
-                <>
-                  <Camera className="w-8 h-8 text-emerald-400 mb-0.5" />
-                  <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-wider">Struk</span>
-                </>
+                <div className="flex flex-col items-center gap-1">
+                  <Camera className="w-9 h-9 text-emerald-400" />
+                  <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Upload<br/>Struk</span>
+                </div>
               )}
             </div>
             {!previewUrl && !isScanning && (
-              <span className="text-[9px] text-slate-400 font-medium text-center leading-tight">Tap to<br/>Upload</span>
+              <span className="text-[9px] text-slate-400 font-medium text-center">Tap untuk upload</span>
             )}
             <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} disabled={isScanning} />
           </label>
@@ -182,7 +182,7 @@ export default function QuickExpense({ onSaved }: Props) {
             {/* Category */}
             <div className="sm:col-span-1">
               <Select value={categoryId} onValueChange={(val) => setCategoryId(val || "")}>
-                <SelectTrigger className="h-11 rounded-xl text-xs">
+                <SelectTrigger className="h-11 rounded-xl text-xs w-full">
                   <SelectValue placeholder="Kategori">
                     {categoryId
                       ? expenseCategories.find((c) => c.id === categoryId)?.name || categoryId
