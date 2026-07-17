@@ -15,10 +15,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "categoryId required" }, { status: 400 });
     }
 
-    // Last 6 months
+    const rangeMonths = parseInt(searchParams.get("months") || "6", 10);
+    const count = Math.max(1, Math.min(12, rangeMonths));
+
+    // Dynamic month range
     const months: { label: string; start: Date; end: Date }[] = [];
     const now = new Date();
-    for (let i = 5; i >= 0; i--) {
+    for (let i = count - 1; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
       const label = d.toLocaleDateString("id-ID", { month: "short", year: "numeric" });

@@ -19,9 +19,16 @@ interface CategoryInfo {
   icon: string;
 }
 
+const RANGE_OPTIONS = [
+  { label: "3 Bulan", value: 3 },
+  { label: "6 Bulan", value: 6 },
+  { label: "12 Bulan", value: 12 },
+] as const;
+
 export default function CategoryTrendChart() {
   const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [range, setRange] = useState(6);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
   const [categoryInfo, setCategoryInfo] = useState<CategoryInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +41,7 @@ export default function CategoryTrendChart() {
     const fetchTrend = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/dashboard/category-trend?categoryId=${selectedCategory}`);
+        const res = await fetch(`/api/dashboard/category-trend?categoryId=${selectedCategory}&months=${range}`);
         const data = await res.json();
         if (data.data) {
           setTrendData(data.data);
@@ -48,7 +55,7 @@ export default function CategoryTrendChart() {
     };
 
     fetchTrend();
-  }, [selectedCategory]);
+  }, [selectedCategory, range]);
 
   // Icon mapping
   const getIcon = (icon: string) => {
@@ -65,10 +72,10 @@ export default function CategoryTrendChart() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Select value={selectedCategory} onValueChange={(val) => setSelectedCategory(val || "")}>
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-36 sm:w-44">
               <SelectValue placeholder="Pilih kategori...">
                 {selectedCategory
                   ? (expenseCategories.find((c) => c.id === selectedCategory)?.name || selectedCategory)
@@ -87,11 +94,27 @@ export default function CategoryTrendChart() {
             </SelectContent>
           </Select>
         </div>
-        {categoryInfo && trendData.length > 0 && (
-          <span className="text-[10px] text-slate-400 font-medium">
-            6 bulan terakhir
-          </span>
+
+        {/* Range toggle */}
+        {selectedCategory && (
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5">
+            {RANGE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setRange(opt.value)}
+                className={`px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
+                  range === opt.value
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         )}
+
       </div>
 
       {!selectedCategory ? (
@@ -107,7 +130,7 @@ export default function CategoryTrendChart() {
           <p className="text-sm text-slate-400">Belum ada data untuk kategori ini</p>
         </div>
       ) : (
-        <div className="h-40">
+        <div className={range === 12 ? "h-52" : "h-40"}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={trendData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
               <XAxis
