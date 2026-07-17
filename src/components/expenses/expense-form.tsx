@@ -167,7 +167,7 @@ export default function ExpenseForm() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger
           render={
-            <Button variant="outline" size="icon" className="w-9 h-9 rounded-xl">
+            <Button className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white shadow-lg shadow-emerald-500/25 transition-all hover:scale-105 active:scale-95">
               <Receipt className="w-4 h-4" />
             </Button>
           }
