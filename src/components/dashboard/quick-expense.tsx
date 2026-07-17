@@ -14,6 +14,7 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useOcr } from "@/hooks/useOcr";
+import { compressImage } from "@/lib/compress-image";
 import { saveOcrCorrection, lookupOcrCorrection } from "@/lib/ocr-learning";
 import SaveSuccessDialog from "@/components/dashboard/save-success-dialog";
 import { Toaster, toast } from "sonner";
@@ -51,7 +52,10 @@ export default function QuickExpense({ onSaved }: Props) {
     setPreviewUrl(URL.createObjectURL(file));
 
     try {
-      const ocrResult = await scanReceipt(file);
+      // Compress image first
+      const compressed = await compressImage(file);
+
+      const ocrResult = await scanReceipt(compressed);
       setOcrRawText(ocrResult.text);
 
       // Check if we have learned corrections for this text
@@ -69,10 +73,10 @@ export default function QuickExpense({ onSaved }: Props) {
         filledCount++;
       }
 
-      // Upload image to server & get receipt URL — wait for it
+      // Upload compressed image to server & get receipt URL
       try {
         const formData = new FormData();
-        formData.append("receipt", file);
+        formData.append("receipt", compressed);
         const uploadRes = await fetch("/api/ocr", { method: "POST", body: formData });
         const uploadData = await uploadRes.json();
         if (uploadData.receiptImageUrl) setReceiptImageUrl(uploadData.receiptImageUrl);
