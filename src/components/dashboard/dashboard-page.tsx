@@ -166,6 +166,32 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </div>
         </FadeIn>
 
+        {/* Budget + Insights — side by side above summary */}
+        {summary && summary.transactionCount > 0 && (
+          <FadeIn delay={0.1}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bento-card p-5">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">
+                  Ringkasan Budget
+                </h3>
+                <BudgetGauge
+                  totalSpent={summary.totalThisMonth}
+                  budgetLimit={5000000}
+                />
+              </div>
+              <div className="bento-card p-5">
+                <SpendingInsights
+                  totalThisMonth={summary.totalThisMonth || 0}
+                  dailyAverage={summary.dailyAverage || 0}
+                  transactionCount={summary.transactionCount || 0}
+                  budgetLimit={5000000}
+                  topCategory={summary.topCategory || null}
+                />
+              </div>
+            </div>
+          </FadeIn>
+        )}
+
         {/* Summary Cards Row */}
         <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" staggerDelay={0.04}>
           <StaggerItem>
@@ -271,29 +297,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
           </div>
         </FadeIn>
-
-        {/* Budget + Insights — side by side below charts */}
-        {summary && summary.transactionCount > 0 && (
-          <FadeIn delay={0.35}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bento-card p-5">
-                <BudgetGauge
-                  totalSpent={summary.totalThisMonth}
-                  budgetLimit={5000000}
-                />
-              </div>
-              <div className="bento-card p-5">
-                <SpendingInsights
-                  totalThisMonth={summary.totalThisMonth || 0}
-                  dailyAverage={summary.dailyAverage || 0}
-                  transactionCount={summary.transactionCount || 0}
-                  budgetLimit={5000000}
-                  topCategory={summary.topCategory || null}
-                />
-              </div>
-            </div>
-          </FadeIn>
-        )}
 
         {/* Recent Transactions */}
         <FadeIn delay={0.3}>
