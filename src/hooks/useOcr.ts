@@ -20,7 +20,7 @@ export function useOcr() {
   const [progress, setProgress] = useState<OcrProgress | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [result, setResult] = useState<OcrResult | null>(null);
-  const workerRef = useRef<Promise<Tesseract.CreateWorkerResult> | null>(null);
+  const workerRef = useRef<Promise<any> | null>(null);
 
   const ensureWorker = useCallback(async () => {
     if (!workerRef.current) {
