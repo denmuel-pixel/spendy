@@ -79,38 +79,49 @@ export default function ExpenseForm() {
       const ocrResultData = await scanReceipt(file);
       setOcrResult(ocrResultData);
 
-      // Upload image to Supabase
-      const formData = new FormData();
-      formData.append("receipt", file);
-
-      const uploadRes = await fetch("/api/ocr", {
-        method: "POST",
-        body: formData,
-      });
-
-      const uploadData = await uploadRes.json();
-      if (uploadData.receiptImageUrl) {
-        setReceiptImageUrl(uploadData.receiptImageUrl);
-      }
-
-      // Auto-fill form from OCR
+      // Auto-fill form from OCR immediately
+      let filledCount = 0;
       if (ocrResultData.totalAmount) {
         setAmount(String(Math.round(ocrResultData.totalAmount)));
+        filledCount++;
       }
       if (ocrResultData.merchant) {
         setMerchant(ocrResultData.merchant);
+        filledCount++;
       }
       if (ocrResultData.date) {
         try {
           const parsed = new Date(ocrResultData.date);
           if (!isNaN(parsed.getTime())) {
             setDate(parsed.toISOString().split("T")[0]);
+            filledCount++;
           }
         } catch {}
       }
 
-      toast.success("OCR berhasil! Data otomatis terisi.");
-    } catch {
+      // Upload image to Supabase (parallel, don't block form fill)
+      const formData = new FormData();
+      formData.append("receipt", file);
+
+      fetch("/api/ocr", {
+        method: "POST",
+        body: formData,
+      })
+        .then((r) => r.json())
+        .then((uploadData) => {
+          if (uploadData.receiptImageUrl) {
+            setReceiptImageUrl(uploadData.receiptImageUrl);
+          }
+        })
+        .catch(() => {});
+
+      if (filledCount > 0) {
+        toast.success(`OCR berhasil! ${filledCount} field terisi.`);
+      } else {
+        toast.info("OCR selesai, tapi data tidak terbaca. Isi manual ya.");
+      }
+    } catch (error) {
+      console.error("OCR error:", error);
       toast.error("OCR gagal, silakan isi manual");
     }
   };

@@ -84,43 +84,80 @@ export function useOcr() {
 }
 
 function extractAmount(text: string): number | undefined {
-  const patterns = [
-    /(?:total|jumlah|rp|idr)\s*:?\s*(?:rp\s*)?([\d.,]+)/gi,
-    /(?:rp|idr)\s*([\d.,]+)/gi,
-    /([\d.,]+)\s*(?:rp|idr)/gi,
-  ];
-
-  for (const pattern of patterns) {
-    const matches = Array.from(text.matchAll(pattern));
-    if (matches.length > 0) {
-      const lastMatch = matches[matches.length - 1][1];
-      const cleaned = lastMatch.replace(/\./g, "").replace(",", ".");
-      const amount = parseFloat(cleaned);
-      if (!isNaN(amount) && amount > 0) {
-        return amount;
-      }
+  // Find all amounts with Rp/IDR prefix or "total" label
+  const allAmounts: number[] = [];
+  
+  // Pattern 1: "Total/Rp/IDR: Rp 50.000" or "Rp50.000"
+  const pattern1 = /(?:total|jumlah|rp|idr)\s*:?\s*(?:rp\s*)?([\d.,]+)/gi;
+  let match;
+  while ((match = pattern1.exec(text)) !== null) {
+    const cleaned = match[1].replace(/\./g, "").replace(",", ".");
+    const amount = parseFloat(cleaned);
+    if (!isNaN(amount) && amount > 0) {
+      allAmounts.push(amount);
     }
+  }
+
+  // Pattern 2: Any number with Rp prefix
+  const pattern2 = /rp\s*([\d.,]+)/gi;
+  while ((match = pattern2.exec(text)) !== null) {
+    const cleaned = match[1].replace(/\./g, "").replace(",", ".");
+    const amount = parseFloat(cleaned);
+    if (!isNaN(amount) && amount > 0) {
+      allAmounts.push(amount);
+    }
+  }
+
+  // Return the largest amount found (usually the total)
+  if (allAmounts.length > 0) {
+    return Math.max(...allAmounts);
   }
   return undefined;
 }
 
 function extractDate(text: string): string | undefined {
-  const patterns = [
-    /(\d{1,2}\s+(?:januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+\d{4})/gi,
-    /(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})/g,
+  // Look for date patterns in the text, prefer later matches (bottom of receipt)
+  const datePatterns = [
+    /(\d{1,2}[/-]\d{1,2}[/-]\d{4})/g,
+    /(\d{1,2}[/-]\d{1,2}[/-]\d{2})/g,
     /(\d{4}[/-]\d{1,2}[/-]\d{1,2})/g,
+    /(\d{1,2}\s+(?:januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+\d{4})/gi,
   ];
 
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) {
-      return match[0];
+  let lastDate: string | undefined;
+  for (const pattern of datePatterns) {
+    const matches = Array.from(text.matchAll(pattern));
+    if (matches.length > 0) {
+      lastDate = matches[matches.length - 1][1];
     }
   }
-  return undefined;
+  return lastDate;
 }
 
 function extractMerchant(text: string): string | undefined {
-  const lines = text.split("\n").filter((l) => l.trim().length > 0);
-  return lines[0]?.trim() || undefined;
+  // Filter lines that look like merchant/store names (all caps, not starting with number)
+  const lines = text.split("\n").filter((l) => {
+    const t = l.trim();
+    return (
+      t.length > 2 &&
+      t.length < 80 &&
+      !t.match(/^\d/) &&
+      !t.includes(":") &&
+      !t.includes("Rp") &&
+      !t.includes("tax") &&
+      !t.includes("total") &&
+      !t.includes("item")
+    );
+  });
+  
+  // Return the first reasonable-looking merchant name
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.length > 3 && trimmed.length < 60) {
+      return trimmed;
+    }
+  }
+  
+  // Fallback: first non-empty line
+  return text.split("\n").find((l) => l.trim().length > 0)?.trim() || undefined;
 }
