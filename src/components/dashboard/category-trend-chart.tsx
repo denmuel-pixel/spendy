@@ -75,7 +75,7 @@ export default function CategoryTrendChart() {
                   : null}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-64">
               {expenseCategories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
                   <span className="flex items-center gap-2">

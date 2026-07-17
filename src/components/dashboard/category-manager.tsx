@@ -152,9 +152,10 @@ export default function CategoryManager() {
           </div>
 
           {/* Existing categories */}
-          <div className="space-y-1.5 max-h-48 overflow-y-auto">
-            <span className="text-xs font-bold text-muted-foreground block">
+          <div className="space-y-1.5 max-h-64 overflow-y-auto custom-scrollbar">
+            <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
               Daftar Kategori ({expenseCategories.length})
+              {expenseCategories.length > 4 && <span className="text-[9px] text-muted-foreground/60 italic">— scroll ↓</span>}
             </span>
             {expenseCategories.map((cat) => (
               <div

@@ -102,7 +102,7 @@ export default function ExpenseList() {
                 : categories.find((c) => c.id === categoryFilter)?.name || categoryFilter}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-64">
             <SelectItem value="all">Semua Kategori</SelectItem>
             {categories
               .filter((c) => c.type === "expense")
