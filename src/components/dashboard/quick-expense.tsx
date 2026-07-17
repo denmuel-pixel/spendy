@@ -132,17 +132,20 @@ export default function QuickExpense({ onSaved }: Props) {
 
         {/* Row 1: Photo + Amount + Category + Submit */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          {/* Photo upload — bigger icon */}
-          <label className="cursor-pointer shrink-0">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 border-dashed transition-all ${previewUrl ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50"}`}>
+          {/* Photo upload — bigger with hint */}
+          <label className="cursor-pointer shrink-0 flex flex-col items-center gap-1">
+            <div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed transition-all ${previewUrl ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50"}`}>
               {isScanning ? (
                 <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
               ) : previewUrl ? (
-                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[11px]" />
+                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[13px]" />
               ) : (
-                <Camera className="w-6 h-6 text-slate-400" />
+                <Camera className="w-7 h-7 text-slate-400" />
               )}
             </div>
+            {!previewUrl && !isScanning && (
+              <span className="text-[9px] text-slate-400 font-medium text-center leading-tight">Upload<br/>Foto</span>
+            )}
             <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} disabled={isScanning} />
           </label>
 
