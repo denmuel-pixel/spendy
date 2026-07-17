@@ -172,22 +172,22 @@ export default function ExpenseForm() {
             </Button>
           }
         />
-        <SheetContent side="bottom" className="h-[90vh] sm:h-[85vh] rounded-t-2xl overflow-y-auto bg-slate-50 dark:bg-slate-950">
-          <SheetHeader className="mb-5">
-            <SheetTitle className="text-xl font-extrabold text-slate-900 dark:text-white">📸 Catat Pengeluaran</SheetTitle>
-            <SheetDescription className="text-slate-500">
+        <SheetContent side="bottom" className="h-[90vh] sm:h-[85vh] rounded-t-2xl overflow-y-auto bg-slate-50 dark:bg-slate-950 px-4 sm:px-8">
+          <SheetHeader className="mb-4 pt-1">
+            <SheetTitle className="text-lg font-extrabold text-slate-900 dark:text-white">📸 Catat Pengeluaran</SheetTitle>
+            <SheetDescription className="text-xs text-slate-500">
               Upload foto struk atau isi manual di bawah
             </SheetDescription>
           </SheetHeader>
 
-          <form onSubmit={handleSubmit} className="pb-8 space-y-5">
+          <form onSubmit={handleSubmit} className="pb-6 space-y-4 max-w-2xl mx-auto">
             {/* TWO-COLUMN LAYOUT */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               
               {/* LEFT: Photo Upload */}
               <div className="md:col-span-5">
                 <label className="cursor-pointer block">
-                  <div className="rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-6 text-center bg-white dark:bg-slate-900 relative flex flex-col justify-center items-center h-52 hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors">
+                  <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-4 text-center bg-white dark:bg-slate-900 relative flex flex-col justify-center items-center h-40 hover:border-emerald-400 dark:hover:border-emerald-600 transition-colors">
                     {isScanning ? (
                       <div className="flex flex-col items-center gap-2.5 w-full">
                         <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
@@ -226,10 +226,10 @@ export default function ExpenseForm() {
               </div>
 
               {/* RIGHT: Manual Form */}
-              <div className="md:col-span-7 space-y-4">
+              <div className="md:col-span-7 space-y-3">
                 {/* Amount with IDR format */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nominal (Rp)</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nominal (Rp)</Label>
                   <div className="relative mt-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-sm">Rp</span>
                     <Input
@@ -237,11 +237,11 @@ export default function ExpenseForm() {
                       onChange={handleAmountChange}
                       placeholder="0"
                       required
-                      className="pl-10 text-lg font-bold font-mono h-12 rounded-2xl"
+                      className="pl-10 text-base font-bold font-mono h-10 rounded-xl"
                     />
                   </div>
                   {amount && (
-                    <p className="text-[10px] text-slate-400 mt-1 ml-1">
+                    <p className="text-[9px] text-slate-400 mt-0.5 ml-1">
                       {parseInt(amount.replace(/\D/g, "") || "0").toLocaleString("id-ID")} rupiah
                     </p>
                   )}
@@ -249,28 +249,28 @@ export default function ExpenseForm() {
 
                 {/* Merchant */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Merchant / Toko</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Merchant / Toko</Label>
                   <Input
                     value={merchant}
                     onChange={(e) => setMerchant(e.target.value)}
                     placeholder="Starbucks, Indomaret, Grab..."
-                    className="mt-1 h-11 rounded-2xl"
+                    className="mt-1 h-10 rounded-xl"
                   />
                 </div>
 
                 {/* Category + Date row */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</Label>
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kategori</Label>
                     <Select value={categoryId} onValueChange={(val) => val && setCategoryId(val)} required>
-                      <SelectTrigger className="mt-1 h-11 rounded-2xl">
+                      <SelectTrigger className="mt-1 h-9 rounded-xl text-xs">
                         <SelectValue placeholder="Pilih" />
                       </SelectTrigger>
                       <SelectContent>
                         {expenseCategories.map((cat) => (
                           <SelectItem key={cat.id} value={cat.id}>
                             <span className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
                               {cat.name}
                             </span>
                           </SelectItem>
@@ -279,16 +279,16 @@ export default function ExpenseForm() {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tanggal</Label>
-                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="mt-1 h-11 rounded-2xl" />
+                    <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tanggal</Label>
+                    <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="mt-1 h-9 rounded-xl text-xs" />
                   </div>
                 </div>
 
                 {/* Payment Method */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pembayaran</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pembayaran</Label>
                   <Select value={paymentMethod} onValueChange={(val) => val && setPaymentMethod(val)}>
-                    <SelectTrigger className="mt-1 h-11 rounded-2xl">
+                    <SelectTrigger className="mt-1 h-9 rounded-xl text-xs">
                       <SelectValue placeholder="Metode bayar" />
                     </SelectTrigger>
                     <SelectContent>
@@ -303,24 +303,24 @@ export default function ExpenseForm() {
 
                 {/* Notes */}
                 <div>
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Catatan</Label>
+                  <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Catatan</Label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Opsional..."
-                    className="flex min-h-[60px] w-full rounded-2xl border border-input bg-transparent px-3 py-2 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring mt-1"
+                    className="flex min-h-[50px] w-full rounded-xl border border-input bg-transparent px-3 py-1.5 text-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring mt-0.5"
                   />
                 </div>
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 pt-2">
-              <Button type="button" variant="outline" className="flex-1 h-12 rounded-2xl text-sm font-bold" onClick={() => { resetForm(); setOpen(false); }}>
+            <div className="flex gap-2 pt-1">
+              <Button type="button" variant="outline" className="flex-1 h-10 rounded-xl text-xs font-bold" onClick={() => { resetForm(); setOpen(false); }}>
                 Batal
               </Button>
-              <Button type="submit" className="flex-1 h-12 rounded-2xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-sm font-bold shadow-lg shadow-emerald-500/20" disabled={isSubmitting}>
-                {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Menyimpan...</> : "Simpan Pengeluaran"}
+              <Button type="submit" className="flex-1 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20" disabled={isSubmitting}>
+                {isSubmitting ? <><Loader2 className="w-3 h-3 animate-spin mr-1" /> Menyimpan...</> : "Simpan Pengeluaran"}
               </Button>
             </div>
           </form>
