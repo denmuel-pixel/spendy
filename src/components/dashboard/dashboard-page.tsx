@@ -92,8 +92,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
-              <DateRangeFilter onFilter={handleDateFilter} isLoading={isLoading} />
-              <CategoryManager />
               <SetPinDialog />
               <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => { refetch(); toast.success("Dashboard diperbarui"); }}>
                 <RefreshCw className="w-4 h-4" />
@@ -148,6 +146,21 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               </Button>
               <ExpenseForm />
             </div>
+          </div>
+        </FadeIn>
+
+        {/* Filter Bar — Date + Category below header */}
+        <FadeIn delay={0.08}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <DateRangeFilter onFilter={handleDateFilter} isLoading={isLoading} />
+              <CategoryManager />
+            </div>
+            {summary && summary.transactionCount > 0 && (
+              <span className="text-[10px] text-slate-400 font-medium">
+                {summary.transactionCount} transaksi · {formatCurrency(summary.totalThisMonth)}
+              </span>
+            )}
           </div>
         </FadeIn>
 
