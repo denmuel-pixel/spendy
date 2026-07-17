@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboard } from "@/hooks/useDashboard";
 import { formatCurrency } from "@/lib/currency";
-import ExpenseForm from "@/components/expenses/expense-form";
 import ExpenseList from "@/components/expenses/expense-list";
 import SetPinDialog from "@/components/dashboard/set-pin-dialog";
 import CategoryManager from "@/components/dashboard/category-manager";
@@ -127,9 +126,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                   ? `Ringkasan ${new Date(dateRange.startDate).toLocaleDateString("id-ID", { day: "numeric", month: "long" })} - ${new Date(dateRange.endDate).toLocaleDateString("id-ID", { day: "numeric", month: "long" })}`
                   : "Ringkasan keuangan bulan ini"}
               </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <ExpenseForm />
             </div>
           </div>
         </FadeIn>

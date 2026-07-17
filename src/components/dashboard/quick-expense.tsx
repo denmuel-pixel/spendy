@@ -132,15 +132,15 @@ export default function QuickExpense({ onSaved }: Props) {
 
         {/* Row 1: Photo + Amount + Category + Submit */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          {/* Photo upload — small icon button */}
+          {/* Photo upload — bigger icon */}
           <label className="cursor-pointer shrink-0">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center border-2 border-dashed transition-all ${previewUrl ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50"}`}>
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 border-dashed transition-all ${previewUrl ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50"}`}>
               {isScanning ? (
-                <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
               ) : previewUrl ? (
-                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[9px]" />
+                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[11px]" />
               ) : (
-                <Camera className="w-4 h-4 text-slate-400" />
+                <Camera className="w-6 h-6 text-slate-400" />
               )}
             </div>
             <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} disabled={isScanning} />
@@ -191,23 +191,21 @@ export default function QuickExpense({ onSaved }: Props) {
           </Button>
         </div>
 
-        {/* Row 2: Merchant + scan progress — only when file picked or merchant filled */}
-        {(previewUrl || merchant) && (
-          <div className="flex items-center gap-2 mt-2">
-            <Input
-              value={merchant}
-              onChange={(e) => setMerchant(e.target.value)}
-              placeholder="Nama merchant/toko..."
-              className="h-9 text-sm rounded-xl flex-1"
-            />
-            {isScanning && progress && (
-              <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400">
-                <Scan className="w-3 h-3 animate-pulse" />
-                {Math.round((progress.progress || 0) * 100)}%
-              </div>
-            )}
-          </div>
-        )}
+        {/* Row 2: Merchant + scan progress — always visible */}
+        <div className="flex items-center gap-2 mt-2">
+          <Input
+            value={merchant}
+            onChange={(e) => setMerchant(e.target.value)}
+            placeholder="Nama merchant/toko (opsional)"
+            className="h-10 text-sm rounded-xl flex-1"
+          />
+          {isScanning && progress && (
+            <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0">
+              <Scan className="w-3 h-3 animate-pulse" />
+              {Math.round((progress.progress || 0) * 100)}%
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
