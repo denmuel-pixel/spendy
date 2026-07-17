@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { scanReceipt } from "@/lib/ocr";
 import { getCurrentUser } from "@/lib/auth";
-import { uploadReceiptImage } from "@/lib/supabase";
 
 export async function POST(req: Request) {
   try {
@@ -17,15 +16,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File foto diperlukan" }, { status: 400 });
     }
 
-    // Upload image to Supabase Storage
-    const imageUrl = await uploadReceiptImage(file, user.id);
+    // Upload image to user's own Next.js API route as storage
+    // Simple approach: store as base64 data URL (works for receipt-size images)
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const dataUrl = `data:${file.type || "image/jpeg"};base64,${buffer.toString("base64")}`;
 
     // Run OCR
     const ocrResult = await scanReceipt(file);
 
     return NextResponse.json({
       ocr: ocrResult,
-      receiptImageUrl: imageUrl,
+      receiptImageUrl: dataUrl,
     });
   } catch (error) {
     console.error("OCR error:", error);
