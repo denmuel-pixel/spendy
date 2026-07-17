@@ -44,10 +44,10 @@ export default function SpendingPieChart({ data }: Props) {
     ? [...top5, { name: "Lainnya", value: othersTotal, color: "#94A3B8", percentage: othersPct }]
     : top5;
 
-  const size = 180;
+  const size = 160;
   const center = size / 2;
-  const radius = 68;
-  const strokeWidth = 26;
+  const radius = 58;
+  const strokeWidth = 22;
   const circumference = 2 * Math.PI * radius;
 
   let offset = 0;

@@ -235,12 +235,12 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </StaggerItem>
         </StaggerContainer>
 
-        {/* Charts Section — Pie + Insights/Budget on left, Area on right */}
+        {/* Charts Section — two equal columns */}
         <FadeIn delay={0.3}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Left: Pie Chart + Budget Gauge + Insights */}
-            <div className="bento-card p-6 space-y-5">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">
+            {/* Left: Pie Chart only */}
+            <div className="bento-card p-6">
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Pengeluaran per Kategori
               </h3>
               <div className="h-56">
@@ -252,29 +252,6 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                   <SpendingPieChart data={pieData} />
                 )}
               </div>
-
-              {/* Budget Gauge — inline below pie */}
-              {summary && summary.transactionCount > 0 && (
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <BudgetGauge
-                    totalSpent={summary.totalThisMonth}
-                    budgetLimit={5000000}
-                  />
-                </div>
-              )}
-
-              {/* Insights — inline at bottom */}
-              {summary && summary.transactionCount > 0 && (
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <SpendingInsights
-                    totalThisMonth={summary.totalThisMonth || 0}
-                    dailyAverage={summary.dailyAverage || 0}
-                    transactionCount={summary.transactionCount || 0}
-                    budgetLimit={5000000}
-                    topCategory={summary.topCategory || null}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Right: Area Chart */}
@@ -282,7 +259,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
                 Tren Pengeluaran (30 Hari)
               </h3>
-              <div className="h-64">
+              <div className="h-56">
                 {isLoading ? (
                   <div className="h-full flex items-center justify-center">
                     <div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
@@ -294,6 +271,29 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
           </div>
         </FadeIn>
+
+        {/* Budget + Insights — side by side below charts */}
+        {summary && summary.transactionCount > 0 && (
+          <FadeIn delay={0.35}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bento-card p-5">
+                <BudgetGauge
+                  totalSpent={summary.totalThisMonth}
+                  budgetLimit={5000000}
+                />
+              </div>
+              <div className="bento-card p-5">
+                <SpendingInsights
+                  totalThisMonth={summary.totalThisMonth || 0}
+                  dailyAverage={summary.dailyAverage || 0}
+                  transactionCount={summary.transactionCount || 0}
+                  budgetLimit={5000000}
+                  topCategory={summary.topCategory || null}
+                />
+              </div>
+            </div>
+          </FadeIn>
+        )}
 
         {/* Recent Transactions */}
         <FadeIn delay={0.3}>

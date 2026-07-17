@@ -34,7 +34,7 @@ export default function ExpenseList() {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    const filters: any = { page, limit: 10 };
+    const filters: any = { page, limit: 5 };
     if (categoryFilter && categoryFilter !== "all") {
       filters.categoryId = categoryFilter;
     }
@@ -46,7 +46,7 @@ export default function ExpenseList() {
 
   const handleSearch = () => {
     setPage(1);
-    const filters: any = { page: 1, limit: 10 };
+    const filters: any = { page: 1, limit: 5 };
     if (categoryFilter && categoryFilter !== "all") {
       filters.categoryId = categoryFilter;
     }
@@ -61,7 +61,7 @@ export default function ExpenseList() {
     try {
       await deleteExpense(id);
       toast.success("Pengeluaran dihapus");
-      fetchExpenses({ page, limit: 10 });
+      fetchExpenses({ page, limit: 5 });
       router.refresh();
     } catch {
       toast.error("Gagal menghapus");
