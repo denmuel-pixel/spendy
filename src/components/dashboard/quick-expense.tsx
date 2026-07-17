@@ -130,85 +130,99 @@ export default function QuickExpense({ onSaved }: Props) {
           </span>
         </div>
 
-        {/* Row 1: Photo + Amount + Category + Submit */}
+        {/* Row 1: Big Photo + Fields */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          {/* Photo upload — bigger with hint */}
-          <label className="cursor-pointer shrink-0 flex flex-col items-center gap-1">
-            <div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed transition-all ${previewUrl ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50"}`}>
+          {/* Photo upload — extra large with animation */}
+          <label className="cursor-pointer shrink-0 flex flex-col items-center gap-1.5">
+            <div className={`w-20 h-20 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 ${
+              previewUrl
+                ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20"
+                : "border-slate-200 dark:border-slate-700 hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/50 animate-pulse-glow"
+            }`}>
               {isScanning ? (
-                <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
+                <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
               ) : previewUrl ? (
-                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[13px]" />
+                <img src={previewUrl} alt="" className="w-full h-full object-cover rounded-[15px]" />
               ) : (
-                <Camera className="w-7 h-7 text-slate-400" />
+                <>
+                  <Camera className="w-8 h-8 text-emerald-400 mb-0.5" />
+                  <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-wider">Struk</span>
+                </>
               )}
             </div>
             {!previewUrl && !isScanning && (
-              <span className="text-[9px] text-slate-400 font-medium text-center leading-tight">Upload<br/>Foto</span>
+              <span className="text-[9px] text-slate-400 font-medium text-center leading-tight">Tap to<br/>Upload</span>
             )}
             <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} disabled={isScanning} />
           </label>
 
-          {/* Amount */}
-          <div className="relative flex-1 min-w-0">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">Rp</span>
-            <Input
-              value={amount}
-              onChange={handleAmountChange}
-              placeholder="Nominal"
-              className="pl-9 h-11 text-base font-bold font-mono rounded-xl"
-            />
-          </div>
-
-          {/* Category */}
-          <div className="w-full sm:w-40">
-            <Select value={categoryId} onValueChange={(val) => setCategoryId(val || "")}>
-              <SelectTrigger className="h-11 rounded-xl text-xs">
-                <SelectValue placeholder="Kategori">
-                  {categoryId
-                    ? expenseCategories.find((c) => c.id === categoryId)?.name || categoryId
-                    : null}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-64">
-                {expenseCategories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    <span className="flex items-center gap-2">
-                      <span className="text-sm">{getIcon(cat.icon)}</span>
-                      {cat.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Submit */}
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !amount || !categoryId}
-            className="h-11 px-5 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 shrink-0"
-          >
-            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            Catat
-          </Button>
-        </div>
-
-        {/* Row 2: Merchant + scan progress — always visible */}
-        <div className="flex items-center gap-2 mt-2">
-          <Input
-            value={merchant}
-            onChange={(e) => setMerchant(e.target.value)}
-            placeholder="Nama merchant/toko (opsional)"
-            className="h-10 text-sm rounded-xl flex-1"
-          />
-          {isScanning && progress && (
-            <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 shrink-0">
-              <Scan className="w-3 h-3 animate-pulse" />
-              {Math.round((progress.progress || 0) * 100)}%
+          {/* Fields column: Nominal + Merchant + Kategori + Submit */}
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-4 gap-2">
+            {/* Amount */}
+            <div className="relative sm:col-span-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">Rp</span>
+              <Input
+                value={amount}
+                onChange={handleAmountChange}
+                placeholder="Nominal"
+                className="pl-9 h-11 text-base font-bold font-mono rounded-xl"
+              />
             </div>
-          )}
+
+            {/* Merchant */}
+            <div className="sm:col-span-1">
+              <Input
+                value={merchant}
+                onChange={(e) => setMerchant(e.target.value)}
+                placeholder="Merchant"
+                className="h-11 text-sm rounded-xl"
+              />
+            </div>
+
+            {/* Category */}
+            <div className="sm:col-span-1">
+              <Select value={categoryId} onValueChange={(val) => setCategoryId(val || "")}>
+                <SelectTrigger className="h-11 rounded-xl text-xs">
+                  <SelectValue placeholder="Kategori">
+                    {categoryId
+                      ? expenseCategories.find((c) => c.id === categoryId)?.name || categoryId
+                      : null}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-64">
+                  {expenseCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm">{getIcon(cat.icon)}</span>
+                        {cat.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Submit */}
+            <div className="sm:col-span-1">
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting || !amount || !categoryId}
+                className="w-full h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-500 hover:from-emerald-600 hover:to-indigo-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20"
+              >
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Catat
+              </Button>
+            </div>
+          </div>
         </div>
+
+        {/* Scan progress */}
+        {isScanning && progress && (
+          <div className="flex items-center gap-2 mt-2 text-[10px] text-emerald-600 dark:text-emerald-400">
+            <Scan className="w-3 h-3 animate-pulse" />
+            Memindai... {Math.round((progress.progress || 0) * 100)}%
+          </div>
+        )}
       </div>
     </>
   );
