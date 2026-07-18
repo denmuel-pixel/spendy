@@ -47,6 +47,6 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     // Match all routes except static files, _next, public APIs, and auth APIs
-    "/((?!_next/static|_next/image|favicon.ico|api/auth|api/seed|api/seed-data|api/ocr).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icon-192.svg|icon-512.svg|api/auth|api/seed|api/seed-data|api/ocr).*)",
   ],
 };
