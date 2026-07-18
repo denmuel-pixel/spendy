@@ -16,6 +16,26 @@ export const metadata: Metadata = {
   title: "Spendy — Catat Pengeluaran Cukup dengan Foto",
   description:
     "Aplikasi pencatatan pengeluaran dengan Face ID, OCR otomatis dari foto struk, dan dashboard interaktif.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Spendy",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    apple: "/icon-192.svg",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  userScalable: false,
+  themeColor: "#10B981",
 };
 
 export default function RootLayout({
@@ -41,6 +61,12 @@ export default function RootLayout({
                   }
                 } catch(e) {}
               })();
+              // Register service worker for PWA
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
             `,
           }}
         />
