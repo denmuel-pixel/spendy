@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Tags } from "lucide-react";
+import { Plus, Trash2, Tags, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +40,7 @@ export default function CategoryManager() {
   const [newColor, setNewColor] = useState("#10B981");
   const [newIcon, setNewIcon] = useState("Grid");
   const [isAdding, setIsAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleAdd = async () => {
     if (!newName.trim()) {
@@ -65,6 +66,23 @@ export default function CategoryManager() {
       toast.error(msg);
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Hapus kategori "${name}"?\nTransaksi dengan kategori ini akan dipindahkan ke kategori default.`)) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success(`Kategori "${name}" dihapus`);
+      refetch();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Gagal menghapus";
+      toast.error(msg);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -182,9 +200,25 @@ export default function CategoryManager() {
                   </span>
                   <span className="font-medium truncate">{cat.name}</span>
                 </div>
-                {!cat.isDefault && (
-                  <span className="text-[10px] text-muted-foreground">Custom</span>
-                )}
+                <div className="flex items-center gap-1 shrink-0">
+                  {!cat.isDefault && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(cat.id, cat.name)}
+                      disabled={deletingId === cat.id}
+                      className="p-1 text-muted-foreground/30 hover:text-rose-500 transition-colors"
+                    >
+                      {deletingId === cat.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3 h-3" />
+                      )}
+                    </button>
+                  )}
+                  {cat.isDefault && (
+                    <span className="text-[9px] text-muted-foreground/40 italic">default</span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
