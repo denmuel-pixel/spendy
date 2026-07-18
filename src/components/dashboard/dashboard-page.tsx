@@ -17,6 +17,7 @@ import SpendingPieChart from "@/components/charts/pie-chart";
 import SpendingLineChart from "@/components/charts/line-chart";
 import CategoryTrendChart from "@/components/dashboard/category-trend-chart";
 import QuickExpense from "@/components/dashboard/quick-expense";
+import OnboardingGuide from "@/components/dashboard/onboarding-guide";
 import DateRangeFilter from "@/components/dashboard/date-range-filter";
 import FadeIn from "@/components/ui/fade-in";
 import { Toaster, toast } from "sonner";
@@ -110,6 +111,13 @@ export default function DashboardPage({ user }: DashboardPageProps) {
             </div>
           </div>
         </FadeIn>
+
+        {/* Onboarding for new users */}
+        {(!summary || summary.transactionCount === 0) && (
+          <FadeIn delay={0.05}>
+            <OnboardingGuide />
+          </FadeIn>
+        )}
 
         {/* Quick Expense — main feature */}
         <FadeIn delay={0.06}>
