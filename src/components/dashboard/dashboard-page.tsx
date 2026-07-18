@@ -112,12 +112,10 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           </div>
         </FadeIn>
 
-        {/* Onboarding for new users */}
-        {(!summary || summary.transactionCount === 0) && (
-          <FadeIn delay={0.05}>
-            <OnboardingGuide />
-          </FadeIn>
-        )}
+        {/* Onboarding accordion guide */}
+        <FadeIn delay={0.04}>
+          <OnboardingGuide />
+        </FadeIn>
 
         {/* Quick Expense — main feature */}
         <FadeIn delay={0.06}>
