@@ -159,6 +159,7 @@ export interface AiQueryContext {
     totalPemasukan: number;
     totalTransaksi: number;
     selisih: number;
+    keywordPencarian: string;
   };
   kategori: { name: string; total: number; count: number }[];
   pemasukanTerbaru: { merchant: string; amount: number; kategori: string; date: string }[];
@@ -187,6 +188,7 @@ DATA KEUANGAN PENGGUNA:
 - Total pemasukan: Rp ${context.summary.totalPemasukan.toLocaleString("id-ID")}
 - Selisih: Rp ${context.summary.selisih.toLocaleString("id-ID")}
 - Jumlah transaksi: ${context.summary.totalTransaksi}
+- Pencarian: ${context.summary.keywordPencarian}
 
 RINCIAN PENGELUARAN PER KATEGORI:
 ${context.kategori
