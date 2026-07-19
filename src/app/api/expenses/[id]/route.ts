@@ -17,7 +17,7 @@ export async function GET(
     const expense = await prisma.expense.findFirst({
       where: { id, userId: user.id },
       include: {
-        category: { select: { id: true, name: true, icon: true, color: true } },
+        category: { select: { id: true, name: true, color: true } },
       },
     });
 
@@ -68,7 +68,7 @@ export async function PUT(
         ...(receiptImageUrl !== undefined && { receiptImageUrl }),
       },
       include: {
-        category: { select: { id: true, name: true, icon: true, color: true } },
+        category: { select: { id: true, name: true, color: true } },
       },
     });
 

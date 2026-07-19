@@ -139,15 +139,7 @@ export default function QuickExpense({ onSaved }: Props) {
     }
   };
 
-  const getIcon = (icon: string) => {
-    const map: Record<string, string> = {
-      utensils: "🍔", car: "🚗", "shopping-bag": "🛍️", film: "🎬",
-      "heart-pulse": "❤️", zap: "⚡", "book-open": "📚", dumbbell: "💪",
-      scissors: "✂️", "trending-up": "📈", coins: "💰", landmark: "🏦",
-      coffee: "☕", grid: "📦",
-    };
-    return map[icon] || "📦";
-  };
+
 
   return (
     <>
@@ -225,7 +217,10 @@ export default function QuickExpense({ onSaved }: Props) {
                   {expenseCategories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       <span className="flex items-center gap-2">
-                        <span className="text-sm">{getIcon(cat.icon)}</span>
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: cat.color }}
+                        />
                         {cat.name}
                       </span>
                     </SelectItem>

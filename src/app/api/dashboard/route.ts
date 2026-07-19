@@ -25,7 +25,7 @@ export async function GET(req: Request) {
         date: { gte: monthStart, lte: monthEnd },
       },
       include: {
-        category: { select: { id: true, name: true, icon: true, color: true } },
+        category: { select: { id: true, name: true, color: true } },
       },
       orderBy: { date: "desc" },
     });
@@ -34,8 +34,16 @@ export async function GET(req: Request) {
     const daysSoFar = Math.max(1, now.getDate());
     const dailyAverage = totalThisMonth / daysSoFar;
 
-    // Spending by category
-    const categoryMap = new Map<string, { name: string; color: string; icon: string; total: number; count: number }>();
+    // Separate expenses and income (treat null as expense for backward compat)
+    const expenseTotal = monthlyExpenses
+      .filter((e) => e.type !== "income")
+      .reduce((sum, e) => sum + e.amount, 0);
+    const incomeTotal = monthlyExpenses
+      .filter((e) => e.type === "income")
+      .reduce((sum, e) => sum + e.amount, 0);
+
+    // Spending by category (expenses only)
+    const categoryMap = new Map<string, { name: string; color: string; total: number; count: number }>();
     for (const exp of monthlyExpenses) {
       const catId = exp.categoryId;
       const existing = categoryMap.get(catId);
@@ -46,7 +54,6 @@ export async function GET(req: Request) {
         categoryMap.set(catId, {
           name: exp.category.name,
           color: exp.category.color,
-          icon: exp.category.icon,
           total: exp.amount,
           count: 1,
         });
@@ -68,22 +75,25 @@ export async function GET(req: Request) {
       percentage: categories[0].percentage,
     } : null;
 
-    // Daily spending for chart (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Daily spending for chart
+    const daysRange = startParam && endParam
+      ? Math.ceil((new Date(endParam).getTime() - new Date(startParam).getTime()) / (1000 * 60 * 60 * 24)) + 1
+      : 30;
+    const chartStart = startParam ? new Date(startParam) : new Date(new Date().setDate(new Date().getDate() - 30));
+    const chartEnd = endParam ? new Date(endParam + "T23:59:59.999Z") : new Date();
 
     const dailyExpenses = await prisma.expense.findMany({
       where: {
         userId: user.id,
-        date: { gte: thirtyDaysAgo },
+        date: { gte: chartStart, lte: chartEnd },
       },
       select: { amount: true, date: true },
       orderBy: { date: "asc" },
     });
 
     const dailyMap = new Map<string, number>();
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(thirtyDaysAgo);
+    for (let i = 0; i < daysRange; i++) {
+      const d = new Date(chartStart);
       d.setDate(d.getDate() + i);
       const key = d.toISOString().split("T")[0];
       dailyMap.set(key, 0);
@@ -105,7 +115,6 @@ export async function GET(req: Request) {
       merchant: e.merchant,
       categoryName: e.category.name,
       categoryColor: e.category.color,
-      categoryIcon: e.category.icon,
       date: e.date,
       notes: e.notes,
     }));
@@ -116,6 +125,9 @@ export async function GET(req: Request) {
         dailyAverage: Math.round(dailyAverage * 100) / 100,
         transactionCount: monthlyExpenses.length,
         topCategory,
+        expenseTotal: Math.round(expenseTotal),
+        incomeTotal: Math.round(incomeTotal),
+        netTotal: Math.round(incomeTotal - expenseTotal),
       },
       categories,
       dailySpending,

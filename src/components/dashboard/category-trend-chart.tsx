@@ -16,7 +16,6 @@ interface CategoryInfo {
   id: string;
   name: string;
   color: string;
-  icon: string;
 }
 
 const RANGE_OPTIONS = [
@@ -24,6 +23,18 @@ const RANGE_OPTIONS = [
   { label: "6 Bulan", value: 6 },
   { label: "12 Bulan", value: 12 },
 ] as const;
+
+function TrendTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white dark:bg-slate-800/95 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-lg px-3 py-2 text-xs">
+      <p className="text-slate-500 dark:text-slate-400 font-medium mb-1">📅 {label}</p>
+      <p className="text-slate-900 dark:text-white font-bold">
+        Rp {Number(payload[0].value).toLocaleString("id-ID")}
+      </p>
+    </div>
+  );
+}
 
 export default function CategoryTrendChart() {
   const { categories } = useCategories();
@@ -57,16 +68,7 @@ export default function CategoryTrendChart() {
     fetchTrend();
   }, [selectedCategory, range]);
 
-  // Icon mapping
-  const getIcon = (icon: string) => {
-    const map: Record<string, string> = {
-      utensils: "🍔", car: "🚗", "shopping-bag": "🛍️", film: "🎬",
-      "heart-pulse": "❤️", zap: "⚡", "book-open": "📚", dumbbell: "💪",
-      scissors: "✂️", "trending-up": "📈", coins: "💰", landmark: "🏦",
-      coffee: "☕", grid: "📦",
-    };
-    return map[icon] || "📦";
-  };
+
 
   const color = categoryInfo?.color || "#10B981";
 
@@ -86,7 +88,10 @@ export default function CategoryTrendChart() {
               {expenseCategories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
                   <span className="flex items-center gap-2">
-                    <span className="text-sm">{getIcon(cat.icon)}</span>
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: cat.color }}
+                    />
                     {cat.name}
                   </span>
                 </SelectItem>
@@ -148,16 +153,7 @@ export default function CategoryTrendChart() {
                 axisLine={false}
                 width={35}
               />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: "12px",
-                  border: "1px solid hsl(var(--border))",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  backgroundColor: "hsl(var(--card))",
-                }}
-                formatter={(value: any) => [`Rp ${Number(value).toLocaleString("id-ID")}`, "Pengeluaran"]}
-                labelFormatter={(label) => `📅 ${label}`}
-              />
+              <Tooltip content={<TrendTooltip />} />
               <Bar
                 dataKey="amount"
                 fill={color}

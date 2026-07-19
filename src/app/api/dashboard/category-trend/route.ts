@@ -50,7 +50,7 @@ export async function GET(req: Request) {
     // Get category info
     const category = await prisma.category.findUnique({
       where: { id: categoryId },
-      select: { id: true, name: true, color: true, icon: true },
+      select: { id: true, name: true, color: true },
     });
 
     return NextResponse.json({ category, data: result });

@@ -37,7 +37,6 @@ model User {
 model Category {
   id        String   @id @default(uuid())
   name      String
-  icon      String   @default("receipt")
   color     String   @default("#10B981")
   type      String   @default("expense")
   isDefault Boolean  @default(false) @map("is_default")
@@ -68,6 +67,7 @@ model Expense {
   receiptImageUrl String?  @map("receipt_image_url")
   ocrRawText      String?  @map("ocr_raw_text")
   isRecurring     Boolean  @default(false) @map("is_recurring")
+  type            String   @default("expense")  // "expense" or "income"
   recurringId     String?  @map("recurring_id")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")

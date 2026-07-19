@@ -16,18 +16,6 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { Toaster, toast } from "sonner";
 
-const ICON_OPTIONS = [
-  { id: "Utensils", emoji: "🍔", label: "Makan" },
-  { id: "Car", emoji: "🚗", label: "Transp" },
-  { id: "ShoppingBag", emoji: "🛍️", label: "Belanja" },
-  { id: "Sparkles", emoji: "🎬", label: "Hibur" },
-  { id: "Coins", emoji: "💰", label: "Koin" },
-  { id: "Landmark", emoji: "🏦", label: "Bank" },
-  { id: "Coffee", emoji: "☕", label: "Kopi" },
-  { id: "Heart", emoji: "❤️", label: "Sehat" },
-  { id: "Grid", emoji: "📦", label: "Lain" },
-];
-
 const COLOR_OPTIONS = [
   "#10B981", "#6366F1", "#EC4899", "#F59E0B",
   "#EF4444", "#8B5CF6", "#06B6D4", "#22C55E", "#F97316",
@@ -38,7 +26,6 @@ export default function CategoryManager() {
   const [open, setOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState("#10B981");
-  const [newIcon, setNewIcon] = useState("Grid");
   const [isAdding, setIsAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -52,14 +39,13 @@ export default function CategoryManager() {
       const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName.trim(), icon: newIcon, color: newColor }),
+        body: JSON.stringify({ name: newName.trim(), color: newColor }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast.success(`Kategori "${newName}" ditambahkan!`);
       setNewName("");
       setNewColor("#10B981");
-      setNewIcon("Grid");
       refetch();
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Gagal menambah kategori";
@@ -121,26 +107,6 @@ export default function CategoryManager() {
               className="h-9 text-sm"
             />
             <div>
-              <span className="text-xs text-muted-foreground block mb-1.5">Icon</span>
-              <div className="flex gap-1.5 flex-wrap">
-                {ICON_OPTIONS.map((ico) => (
-                  <button
-                    key={ico.id}
-                    type="button"
-                    onClick={() => setNewIcon(ico.id)}
-                    className={`p-1.5 rounded-xl border text-xs flex flex-col items-center gap-0.5 cursor-pointer transition-all ${
-                      newIcon === ico.id
-                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 font-bold"
-                        : "border-border bg-card text-muted-foreground hover:bg-accent"
-                    }`}
-                  >
-                    <span className="text-base">{ico.emoji}</span>
-                    <span className="text-[8px]">{ico.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
               <span className="text-xs text-muted-foreground block mb-1.5">Warna</span>
               <div className="flex gap-2 flex-wrap">
                 {COLOR_OPTIONS.map((color) => (
@@ -185,36 +151,21 @@ export default function CategoryManager() {
                     className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                     style={{ backgroundColor: cat.color }}
                   />
-                  <span className="text-sm leading-none">
-                    {cat.icon === "Utensils" ? "🍔" :
-                     cat.icon === "Car" ? "🚗" :
-                     cat.icon === "shopping-bag" ? "🛍️" :
-                     cat.icon === "film" ? "🎬" :
-                     cat.icon === "heart-pulse" ? "❤️" :
-                     cat.icon === "zap" ? "⚡" :
-                     cat.icon === "book-open" ? "📚" :
-                     cat.icon === "dumbbell" ? "💪" :
-                     cat.icon === "scissors" ? "✂️" :
-                     cat.icon === "trending-up" ? "📈" :
-                     "📦"}
-                  </span>
                   <span className="font-medium truncate">{cat.name}</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  {!cat.isDefault && (
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(cat.id, cat.name)}
-                      disabled={deletingId === cat.id}
-                      className="p-1 text-muted-foreground/30 hover:text-rose-500 transition-colors"
-                    >
-                      {deletingId === cat.id ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-3 h-3" />
-                      )}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(cat.id, cat.name)}
+                    disabled={deletingId === cat.id}
+                    className="p-1 text-muted-foreground/30 hover:text-rose-500 transition-colors"
+                  >
+                    {deletingId === cat.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3 h-3" />
+                    )}
+                  </button>
                   {cat.isDefault && (
                     <span className="text-[9px] text-muted-foreground/40 italic">default</span>
                   )}

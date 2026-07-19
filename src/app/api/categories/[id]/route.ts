@@ -21,13 +21,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Kategori tidak ditemukan" }, { status: 404 });
     }
 
-    // Prevent deleting default categories
-    if (category.isDefault) {
-      return NextResponse.json({ error: "Kategori default tidak bisa dihapus" }, { status: 400 });
-    }
-
-    // Only the owner can delete their custom category
-    if (category.userId !== user.id) {
+    // Allow deleting default categories as well, as long as user is authenticated.
+    if (category.userId !== user.id && !category.isDefault) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

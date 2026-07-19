@@ -41,7 +41,6 @@ export interface CategorySpending {
   categoryId: string;
   categoryName: string;
   categoryColor: string;
-  categoryIcon: string;
   total: number;
   percentage: number;
   count: number;

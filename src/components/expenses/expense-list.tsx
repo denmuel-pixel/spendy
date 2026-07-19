@@ -26,7 +26,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { formatCurrency } from "@/lib/currency";
 import { Toaster, toast } from "sonner";
 
-export default function ExpenseList() {
+export default function ExpenseList({ startDate, endDate }: { startDate?: string; endDate?: string }) {
   const router = useRouter();
   const { categories } = useCategories();
   const { expenses, pagination, isLoading, fetchExpenses, deleteExpense } = useExpenses();
@@ -36,6 +36,8 @@ export default function ExpenseList() {
 
   useEffect(() => {
     const filters: any = { page, limit: 5 };
+    if (startDate) filters.startDate = startDate;
+    if (endDate) filters.endDate = endDate;
     if (categoryFilter && categoryFilter !== "all") {
       filters.categoryId = categoryFilter;
     }
@@ -43,7 +45,7 @@ export default function ExpenseList() {
       filters.search = search;
     }
     fetchExpenses(filters);
-  }, [page, categoryFilter, search, fetchExpenses]);
+  }, [page, categoryFilter, search, startDate, endDate, fetchExpenses]);
 
   const handleSearch = () => {
     setPage(1);
@@ -135,18 +137,7 @@ export default function ExpenseList() {
       ) : (
         <div className="space-y-1.5">
           {expenses.map((expense) => {
-            const catIcon = 
-              expense.category.icon === "utensils" ? "🍔" :
-              expense.category.icon === "car" ? "🚗" :
-              expense.category.icon === "shopping-bag" ? "🛍️" :
-              expense.category.icon === "film" ? "🎬" :
-              expense.category.icon === "heart-pulse" ? "❤️" :
-              expense.category.icon === "zap" ? "⚡" :
-              expense.category.icon === "book-open" ? "📚" :
-              expense.category.icon === "dumbbell" ? "💪" :
-              expense.category.icon === "scissors" ? "✂️" :
-              expense.category.icon === "trending-up" ? "📈" :
-              "📦";
+            const catColor = expense.category.color;
 
             return (
               <div
@@ -155,13 +146,13 @@ export default function ExpenseList() {
               >
                 {/* Category colored bubble */}
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold"
                   style={{
-                    backgroundColor: `${expense.category.color}20`,
-                    color: expense.category.color,
+                    backgroundColor: `${catColor}20`,
+                    color: catColor,
                   }}
                 >
-                  {catIcon}
+                  {expense.category.name.charAt(0).toUpperCase()}
                 </div>
 
                 {/* Info */}

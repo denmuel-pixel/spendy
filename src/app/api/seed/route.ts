@@ -2,19 +2,19 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const DEFAULT_CATEGORIES = [
-  { name: "Makanan & Minuman", icon: "utensils", color: "#F97316", type: "expense" },
-  { name: "Transportasi", icon: "car", color: "#3B82F6", type: "expense" },
-  { name: "Belanja", icon: "shopping-bag", color: "#EC4899", type: "expense" },
-  { name: "Hiburan", icon: "film", color: "#8B5CF6", type: "expense" },
-  { name: "Kesehatan", icon: "heart-pulse", color: "#EF4444", type: "expense" },
-  { name: "Tagihan & Utilitas", icon: "zap", color: "#F59E0B", type: "expense" },
-  { name: "Pendidikan", icon: "book-open", color: "#06B6D4", type: "expense" },
-  { name: "Olahraga", icon: "dumbbell", color: "#10B981", type: "expense" },
-  { name: "Grooming", icon: "scissors", color: "#D946EF", type: "expense" },
-  { name: "Investasi", icon: "trending-up", color: "#22C55E", type: "expense" },
-  { name: "Gaji", icon: "briefcase", color: "#10B981", type: "income" },
-  { name: "Freelance", icon: "laptop", color: "#6366F1", type: "income" },
-  { name: "Lainnya", icon: "ellipsis", color: "#6B7280", type: "expense" },
+  { name: "Makanan & Minuman", color: "#F97316", type: "expense" },
+  { name: "Transportasi", color: "#3B82F6", type: "expense" },
+  { name: "Belanja", color: "#EC4899", type: "expense" },
+  { name: "Hiburan", color: "#8B5CF6", type: "expense" },
+  { name: "Kesehatan", color: "#EF4444", type: "expense" },
+  { name: "Tagihan & Utilitas", color: "#F59E0B", type: "expense" },
+  { name: "Pendidikan", color: "#06B6D4", type: "expense" },
+  { name: "Olahraga", color: "#10B981", type: "expense" },
+  { name: "Grooming", color: "#D946EF", type: "expense" },
+  { name: "Investasi", color: "#22C55E", type: "expense" },
+  { name: "Gaji", color: "#10B981", type: "income" },
+  { name: "Freelance", color: "#6366F1", type: "income" },
+  { name: "Lainnya", color: "#6B7280", type: "expense" },
 ];
 
 export async function POST() {
@@ -29,7 +29,7 @@ export async function POST() {
 
       if (!existing) {
         await prisma.category.create({
-          data: { ...cat, isDefault: true },
+          data: { name: cat.name, color: cat.color, type: cat.type, isDefault: true },
         });
         created++;
       } else {

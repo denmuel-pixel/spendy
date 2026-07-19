@@ -18,6 +18,18 @@ interface Props {
   data: LineData[];
 }
 
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white dark:bg-slate-800/95 border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-lg px-3 py-2 text-xs">
+      <p className="text-slate-500 dark:text-slate-400 font-medium mb-1">📅 {label}</p>
+      <p className="text-slate-900 dark:text-white font-bold">
+        Rp {Number(payload[0].value).toLocaleString("id-ID")}
+      </p>
+    </div>
+  );
+}
+
 export default function SpendingLineChart({ data }: Props) {
   if (data.length === 0) {
     return (
@@ -65,16 +77,7 @@ export default function SpendingLineChart({ data }: Props) {
           axisLine={false}
           width={45}
         />
-        <Tooltip
-          contentStyle={{
-            borderRadius: "12px",
-            border: "1px solid hsl(var(--border))",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            backgroundColor: "hsl(var(--card))",
-          }}
-          formatter={(value: any) => [`Rp ${Number(value).toLocaleString("id-ID")}`, "Pengeluaran"]}
-          labelFormatter={(label) => `📅 ${label}`}
-        />
+        <Tooltip content={<ChartTooltip />} />
         <Area
           type="monotone"
           dataKey="amount"

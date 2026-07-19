@@ -13,16 +13,7 @@ interface Props {
   data: PieData[];
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  "Makanan & Minuman": "🍔",
-  "Transportasi": "🚗",
-  "Belanja": "🛍️",
-  "Hiburan": "🎬",
-  "Kesehatan": "❤️",
-  "Tagihan & Utilitas": "⚡",
-  "Pendidikan": "📚",
-  "Olahraga": "💪",
-};
+
 
 export default function SpendingPieChart({ data }: Props) {
   if (data.length === 0) {
@@ -76,11 +67,13 @@ export default function SpendingPieChart({ data }: Props) {
 
       <div className="flex-1 space-y-2 min-w-0 w-full">
         {displayData.map((item) => {
-          const icon = CATEGORY_ICONS[item.name] || "📦";
           return (
             <div key={item.name} className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <span className="text-base">{icon}</span>
+                <span
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
                 <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">

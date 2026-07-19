@@ -34,7 +34,7 @@ interface Expense {
   date: string;
   paymentMethod: string | null;
   receiptImageUrl: string | null;
-  category: { id: string; name: string; icon: string; color: string };
+  category: { id: string; name: string; color: string };
 }
 
 interface Props {

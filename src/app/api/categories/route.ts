@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { name, icon, color } = await req.json();
+    const { name, color } = await req.json();
 
     if (!name) {
       return NextResponse.json({ error: "Nama kategori diperlukan" }, { status: 400 });
@@ -42,7 +42,6 @@ export async function POST(req: Request) {
     const category = await prisma.category.create({
       data: {
         name,
-        icon: icon || "ellipsis",
         color: color || "#6B7280",
         userId: user.id,
       },

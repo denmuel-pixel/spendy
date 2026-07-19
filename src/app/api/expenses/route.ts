@@ -16,6 +16,7 @@ export async function GET(req: Request) {
     const endDate = searchParams.get("endDate");
     const categoryId = searchParams.get("categoryId");
     const search = searchParams.get("search");
+    const type = searchParams.get("type"); // "expense" | "income"
 
     const skip = (page - 1) * limit;
 
@@ -31,6 +32,10 @@ export async function GET(req: Request) {
       where.categoryId = categoryId;
     }
 
+    if (type) {
+      where.type = type;
+    }
+
     if (search) {
       where.OR = [
         { merchant: { contains: search, mode: "insensitive" } },
@@ -42,7 +47,7 @@ export async function GET(req: Request) {
       prisma.expense.findMany({
         where,
         include: {
-          category: { select: { id: true, name: true, icon: true, color: true } },
+          category: { select: { id: true, name: true, color: true } },
         },
         orderBy: { date: "desc" },
         skip,
@@ -96,7 +101,7 @@ export async function POST(req: Request) {
         ocrRawText: ocrRawText || null,
       },
       include: {
-        category: { select: { id: true, name: true, icon: true, color: true } },
+        category: { select: { id: true, name: true, color: true } },
       },
     });
 

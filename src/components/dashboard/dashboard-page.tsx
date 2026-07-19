@@ -10,6 +10,9 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { formatCurrency } from "@/lib/currency";
 import ExpenseList from "@/components/expenses/expense-list";
 import SetPinDialog from "@/components/dashboard/set-pin-dialog";
+import IncomeList from "@/components/dashboard/income-list";
+import AiQuery from "@/components/dashboard/ai-query";
+import BankStatementImport from "@/components/dashboard/bank-statement-import";
 import CategoryManager from "@/components/dashboard/category-manager";
 import SpendingInsights from "@/components/dashboard/spending-insights";
 import BudgetGauge from "@/components/dashboard/budget-gauge";
@@ -33,8 +36,8 @@ interface DashboardPageProps {
 
 export default function DashboardPage({ user }: DashboardPageProps) {
   const { logout } = useAuth();
-  const { data, isLoading, refetch } = useDashboard();
   const [dateRange, setDateRange] = useState<{ startDate: string; endDate: string } | null>(null);
+  const { data, isLoading, refetch } = useDashboard(dateRange);
   const [budgetLimit, setBudgetLimit] = useState(5000000);
   const [showReport, setShowReport] = useState(false);
 
@@ -54,9 +57,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
 
   const handleDateFilter = useCallback((range: { startDate: string; endDate: string } | null) => {
     setDateRange(range);
-    // Refetch with new date params — will be handled by the hook
-    refetch();
-  }, [refetch]);
+  }, []);
 
   const summary = data?.summary;
   const pieData = (data?.categories || []).map((c) => ({
@@ -84,6 +85,7 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
+              <BankStatementImport onSaved={refetch} />
               <SetPinDialog />
               <Button variant="ghost" size="icon" className="w-8 h-8" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" />
@@ -155,8 +157,52 @@ export default function DashboardPage({ user }: DashboardPageProps) {
           <FadeIn delay={0.1}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bento-card p-5">
-                <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-3">Ringkasan Budget</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">Ringkasan Budget</h3>
+                  <span className="text-[9px] text-muted-foreground/60 font-medium">
+                    {dateRange
+                      ? `${new Date(dateRange.startDate).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} - ${new Date(dateRange.endDate).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}`
+                      : new Date().toLocaleDateString("id-ID", { month: "long", year: "numeric" })}
+                  </span>
+                </div>
                 <BudgetGauge totalSpent={summary.totalThisMonth} budgetLimit={budgetLimit} onBudgetChange={setBudgetLimit} />
+              </div>
+              <div className="bento-card p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">Pemasukan vs Pengeluaran</h3>
+                </div>
+                <div className="space-y-3">
+                  {/* Pemasukan */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400">Pemasukan</span>
+                    </div>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      {summary.incomeTotal ? formatCurrency(summary.incomeTotal) : "Rp 0"}
+                    </span>
+                  </div>
+                  {/* Pengeluaran */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-rose-500" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400">Pengeluaran</span>
+                    </div>
+                    <span className="text-xs font-bold text-rose-500">
+                      {summary.expenseTotal ? formatCurrency(summary.expenseTotal) : "Rp 0"}
+                    </span>
+                  </div>
+                  {/* Divider */}
+                  <div className="h-px bg-slate-100 dark:bg-slate-800" />
+                  {/* Selisih */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">Selisih</span>
+                    <span className={`text-xs font-bold ${(summary.netTotal ?? 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>
+                      {summary.netTotal !== undefined ? formatCurrency(Math.abs(summary.netTotal)) : "Rp 0"}
+                      {(summary.netTotal ?? 0) >= 0 ? " 👍" : " ⚠️"}
+                    </span>
+                  </div>
+                </div>
               </div>
               <div className="bento-card p-5">
                 <SpendingInsights totalThisMonth={summary.totalThisMonth || 0} dailyAverage={summary.dailyAverage || 0} transactionCount={summary.transactionCount || 0} budgetLimit={budgetLimit} topCategory={summary.topCategory || null} />
@@ -168,12 +214,23 @@ export default function DashboardPage({ user }: DashboardPageProps) {
         {/* Charts */}
         <FadeIn delay={0.3}>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Laporan Keuangan</span>
+            <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">
+              {dateRange
+                ? `${new Date(dateRange.startDate).toLocaleDateString("id-ID", { day: "numeric", month: "short" })} – ${new Date(dateRange.endDate).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}`
+                : "Bulan Ini"}
+            </span>
             <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800" />
+            {summary && summary.transactionCount > 0 && (
+              <span className="text-[10px] text-slate-400 font-medium shrink-0">
+                {summary.transactionCount} transaksi
+              </span>
+            )}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
             <div className="bento-card p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Pengeluaran per Kategori</h3>
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
+                {dateRange ? "Pengeluaran per Periode" : "Pengeluaran per Kategori"}
+              </h3>
               <div className="min-h-[300px] lg:min-h-0 lg:h-56">
                 {isLoading ? (
                   <div className="h-[300px] lg:h-56 flex items-center justify-center"><div className="w-48 h-48 rounded-full bg-slate-100 dark:bg-slate-800 animate-pulse" /></div>
@@ -183,7 +240,9 @@ export default function DashboardPage({ user }: DashboardPageProps) {
               </div>
             </div>
             <div className="bento-card p-6">
-              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">Tren Pengeluaran (30 Hari)</h3>
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest mb-4">
+                {dateRange ? "Tren Pengeluaran" : "Tren Pengeluaran (30 Hari)"}
+              </h3>
               <div className="h-[200px] lg:h-56">
                 {isLoading ? (
                   <div className="h-full flex items-center justify-center"><div className="w-full h-48 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" /></div>
@@ -215,12 +274,24 @@ export default function DashboardPage({ user }: DashboardPageProps) {
                 {[...Array(5)].map((_, i) => (<div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl animate-pulse" />))}
               </div>
             ) : (
-              <ExpenseList />
+              <ExpenseList startDate={dateRange?.startDate} endDate={dateRange?.endDate} />
             )}
           </div>
         </FadeIn>
         )}
+
+        {/* Income History */}
+        {showReport && (
+        <FadeIn delay={0.35}>
+          <div className="bento-card p-6 space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-widest">Riwayat Pemasukan</h3>
+            <IncomeList startDate={dateRange?.startDate} endDate={dateRange?.endDate} />
+          </div>
+        </FadeIn>
+        )}
       </main>
+
+      <AiQuery />
     </>
   );
 }

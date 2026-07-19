@@ -5,7 +5,7 @@ import { useState, useCallback } from "react";
 interface ExpenseCategory {
   id: string;
   name: string;
-  icon: string;
+
   color: string;
 }
 
@@ -38,6 +38,7 @@ interface ExpenseFilters {
   endDate?: string;
   categoryId?: string;
   search?: string;
+  type?: string; // "expense" | "income"
 }
 
 export function useExpenses() {
@@ -60,6 +61,7 @@ export function useExpenses() {
       if (filters.endDate) params.set("endDate", filters.endDate);
       if (filters.categoryId) params.set("categoryId", filters.categoryId);
       if (filters.search) params.set("search", filters.search);
+      if (filters.type) params.set("type", filters.type);
 
       const res = await fetch(`/api/expenses?${params}`);
       const data = await res.json();

@@ -1,0 +1,11 @@
+{
+  // Agar tab tidak dalam mode preview (jadi tab permanen, tidak hilang diganti file lain)
+  "workbench.editor.enablePreview": false,
+
+  // Menyimpan state editor (tab yang terbuka) saat VS Code ditutup
+  // agar saat dibuka kembali tab-nya masih ada
+  "files.hotExit": "onExit",
+
+  // Merestore chat session sebelumnya saat VS Code dibuka kembali
+  "chat.restore": true
+}
